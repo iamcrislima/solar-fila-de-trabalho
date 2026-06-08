@@ -1204,7 +1204,7 @@ export function FilaDeProcessos({
       )}
       documentCount={proc.documentCount}
       alertActive={proc.alertActive}
-      selected={selectedProcessId === proc.id}
+      selected={checkedIds.has(proc.id) || selectedProcessId === proc.id}
       expanded={expandedIds.has(proc.id)}
       onClick={() => handleProcessCardClick(proc.id)}
       onOpenProcess={() => handleOpenProcess(proc)}

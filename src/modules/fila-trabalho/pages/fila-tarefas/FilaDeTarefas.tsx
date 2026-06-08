@@ -1072,7 +1072,7 @@ export function FilaDeTarefas({ onNavigate, onSidebarChange, crossCounts, onCoun
       fields={getFields(tarefa).slice(0, 4) as { label?: string; value?: unknown }[]}
       extraFields={getFields(tarefa).slice(4, 8) as { label?: string; value?: unknown }[]}
       chips={taskChipsMap.get(tarefa.id) ?? tarefa.chips ?? []}
-      selected={openedTaskId === tarefa.id || selectedTaskId === tarefa.id}
+      selected={checkedIds.has(tarefa.id) || openedTaskId === tarefa.id || selectedTaskId === tarefa.id}
       compact={isTaskDetailActive}
       expanded={!isTaskDetailActive && expandedIds.has(tarefa.id)}
       onExpandClick={() => toggleTaskPanel(tarefa.id)}
