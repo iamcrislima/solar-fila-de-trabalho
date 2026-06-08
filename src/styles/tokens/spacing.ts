@@ -1,0 +1,16 @@
+export const spacing = {
+  xxxs:   '2px',
+  xxs:    '4px',
+  bt:     '6px',
+  xs:     '8px',
+  'bt-2': '10px',
+  'bt-3': '12px',
+  sm:     '16px',
+  md:     '24px',
+  lg:     '32px',
+  xl:     '40px',
+  xxl:    '64px',
+  xxxl:   '80px',
+  huge:   '128px',
+  giant:  '160px',
+};

@@ -1,0 +1,1 @@
+export { IconHint } from './IconHint';

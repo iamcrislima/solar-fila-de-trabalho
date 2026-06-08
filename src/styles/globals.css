@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- Cores ---- */
+  --color-primary-dark:   #002152;
+  --color-primary-main:   #0059DB;
+  --color-primary-medium: #3385FF;
+  --color-primary-light:  #85B6FF;
+  --color-primary-xl:     #ADCEFF;
+  --color-primary-xxl:    #EBF3FF;
+
+  --color-secondary-dark:   #212121;
+  --color-secondary-main:   #616161;
+  --color-secondary-medium: #9E9E9E;
+  --color-secondary-light:  #E0E0E0;
+  --color-secondary-xl:     #F5F5F5;
+  --color-secondary-xxl:    #FAFAFA;
+
+  --color-support-main: #5C5CFF;
+
+  --color-error-main:  #B71C1C;
+  --color-error-light: #FFEBEE;
+
+  --color-warning-main:  #F57F17;
+  --color-warning-light: #FFF9C4;
+
+  --color-success-main:  #558B2F;
+  --color-success-light: #F1F8E9;
+
+  --color-surface-dark:   #212121;
+  --color-surface-main:   #616161;
+  --color-surface-medium: #9E9E9E;
+  --color-surface-light:  #E0E0E0;
+  --color-surface-xl:     #F5F5F5;
+  --color-surface-xxl:    #FAFAFA;
+  --color-surface-xxxl:   #FFFFFF;
+
+  --color-surface-dm-dark:   #000000;
+  --color-surface-dm-main:   #212121;
+  --color-surface-dm-medium: #313131;
+  --color-surface-dm-light:  #414141;
+  --color-surface-dm-xl:     #515151;
+  --color-surface-dm-xxl:    #717171;
+  --color-surface-dm-xxxl:   #919191;
+
+  /* ---- Fontes ---- */
+  --font-primary:   'Open Sans', sans-serif;
+  --font-secondary: 'Montserrat', sans-serif;
+
+  /* ---- Tamanhos de fonte ---- */
+  --text-xxs:     9.5px;
+  --text-xs:      12px;
+  --text-sm:      14px;
+  --text-md:      16px;
+  --text-lg:      20px;
+  --text-xl:      24px;
+  --text-xxl:     34px;
+  --text-xxxl:    48px;
+  --text-display: 60px;
+  --text-giant:   96px;
+
+  /* ---- Pesos de fonte ---- */
+  --font-weight-light:     300;
+  --font-weight-regular:   400;
+  --font-weight-medium:    500;
+  --font-weight-semibold:  600;
+  --font-weight-bold:      700;
+  --font-weight-extrabold: 800;
+  --font-weight-black:     900;
+
+  /* ---- Alturas de linha ---- */
+  --leading-xxxs:    13px;
+  --leading-xxs:     14px;
+  --leading-xs:      16px;
+  --leading-sm:      17px;
+  --leading-md:      19px;
+  --leading-lg:      22px;
+  --leading-xl:      24px;
+  --leading-xxl:     29px;
+  --leading-xxxl:    41px;
+  --leading-display: 58px;
+  --leading-huge:    73px;
+  --leading-giant:   117px;
+
+  /* ---- Espaçamento entre letras ---- */
+  --tracking-normal: 0px;
+  --tracking-tight:  -3.84px;
+
+  /* ---- Espaçamentos ---- */
+  --spacing-xxxs:  2px;
+  --spacing-xxs:   4px;
+  --spacing-bt:    6px;
+  --spacing-xs:    8px;
+  --spacing-bt-2:  10px;
+  --spacing-bt-3:  12px;
+  --spacing-sm:    16px;
+  --spacing-md:    24px;
+  --spacing-lg:    32px;
+  --spacing-xl:    40px;
+  --spacing-xxl:   64px;
+  --spacing-xxxl:  80px;
+  --spacing-huge:  128px;
+  --spacing-giant: 160px;
+
+  /* ---- Bordas — raio ---- */
+  --radius-none:     0px;
+  --radius-sm:       2px;
+  --radius-md:       4px;
+  --radius-lg:       8px;
+  --radius-xl:       12px;
+  --radius-xxl:      16px;
+  --radius-pill:     492px;
+  --radius-circular: 980px;
+
+  /* ---- Sombras ---- */
+  --shadow-level-a: 0px 0px 0px 2px rgba(0,0,0,0.24);
+  --shadow-level-1: 0px 2px 4px 0px rgba(0,0,0,0.24);
+  --shadow-level-2: 0px 4px 8px 0px rgba(0,0,0,0.32);
+  --shadow-level-3: 0px 8px 24px 0px rgba(0,0,0,0.40);
+  --shadow-level-4: 0px 16px 32px 0px rgba(0,0,0,0.64);
+
+  /* ---- Opacidade ---- */
+  --opacity-semiopaque:       0.80;
+  --opacity-intense:          0.72;
+  --opacity-medium:           0.64;
+  --opacity-disable:          0.40;
+  --opacity-bg-dark-active:   0.24;
+  --opacity-bg-dark-selected: 0.16;
+  --opacity-bg-dark-hover:    0.08;
+
+  /* ---- Larguras máximas (container) ---- */
+  --max-w-max:     1196px;
+  --max-w-card:    1072px;
+  --max-w-display: 1024px;
+  --max-w-modal:   959px;
+  --max-w-xxxl:    894px;
+  --max-w-xxl:     829px;
+  --max-w-xl:      764px;
+  --max-w-lg:      699px;
+  --max-w-md:      634px;
+  --max-w-sm:      569px;
+  --max-w-xs:      504px;
+  --max-w-xxs:     439px;
+  --max-w-xxxs:    374px;
+  --max-w-mobi:    320px;
+  --max-w-nano4:   309px;
+  --max-w-nano3:   244px;
+  --max-w-nano2:   179px;
+  --max-w-nano:    114px;
+  --max-w-line:    88px;
+  --max-w-atm:     49px;
+}
