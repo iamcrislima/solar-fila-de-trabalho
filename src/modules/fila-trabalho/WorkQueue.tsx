@@ -4,7 +4,7 @@ import type { WorkQueueCard } from './types';
 
 import { CustomTabs } from '../../components/custom/CustomTabs';
 import { Chip } from '../../components/ds/atoms/Chip';
-import { TableNavBar } from '../../components/ds/atoms/Table/TableNavBar';
+import { SimplePagination } from '../../components/custom/SimplePagination';
 import { Overlay } from '../../components/ds/atoms/Overlay';
 import { PortalContent } from '../../shell/PortalContent';
 
@@ -22,8 +22,6 @@ import { shadows } from '../../styles/tokens/shadows';
 import { borders } from '../../styles/tokens/borders';
 
 import ArrowBackIcon    from '@mui/icons-material/ArrowBack';
-import ChevronLeftIcon  from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import RefreshIcon      from '@mui/icons-material/Refresh';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import BackupTableIcon  from '@mui/icons-material/BackupTable';
@@ -202,9 +200,9 @@ export function WorkQueue({
   categoriasSlot,
   page,
   pageSize,
-  pageSizeOptions,
+  pageSizeOptions: _pageSizeOptions,
   onPageChange,
-  onPageSizeChange,
+  onPageSizeChange: _onPageSizeChange,
   displayedItems = [],
   emptyMessage,
   renderItem,
@@ -281,30 +279,6 @@ export function WorkQueue({
           <ButtonHint icon={<PictureAsPdfIcon />} hint={texts.tooltips.exportarPdf} />
           <ButtonHint icon={<BackupTableIcon />}  hint={texts.tooltips.exportarPlanilha} />
           <ButtonHint icon={<SettingsIcon />}     hint={texts.tooltips.configuracoes} onClick={onOpenPersonalizacao} />
-
-          {/* Divisor */}
-          <div style={{ width: 1, height: 20, backgroundColor: colors.surface.light, flexShrink: 0, margin: '0 6px' }} />
-
-          {/* Paginação */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            {filteredCount != null && pageSize != null && page != null && filteredCount > 0 && (
-              <span style={{ ...typography.styles.caption, color: colors.secondary.main, whiteSpace: 'nowrap', marginRight: 4 }}>
-                {Math.min(page * pageSize + 1, filteredCount)}–{Math.min((page + 1) * pageSize, filteredCount)} de {filteredCount}
-              </span>
-            )}
-            <ButtonHint
-              icon={<ChevronLeftIcon />}
-              hint="Página anterior"
-              onClick={() => { if (page != null && page > 0) onPageChange?.(page - 1); }}
-              disabled={page == null || page <= 0}
-            />
-            <ButtonHint
-              icon={<ChevronRightIcon />}
-              hint="Próxima página"
-              onClick={() => { if (page != null && pageSize != null && filteredCount != null) onPageChange?.(page + 1); }}
-              disabled={page == null || pageSize == null || filteredCount == null || (page + 1) * pageSize >= filteredCount}
-            />
-          </div>
         </div>
       </div>
 
@@ -449,15 +423,14 @@ export function WorkQueue({
             </div>
             {sidePanelOpen && sidePanel}
           </div>
-          <TableNavBar
-            totalRows={filteredCount}
-            page={page}
-            pageSize={pageSize}
-            pageSizeOptions={pageSizeOptions}
-            onPageChange={onPageChange}
-            onPageSizeChange={onPageSizeChange}
-            style={{ padding: '2px 0 0', backgroundColor: 'transparent' }}
-          />
+          {onPageChange && (
+            <SimplePagination
+              page={page ?? 1}
+              totalPages={Math.ceil((filteredCount ?? 0) / (pageSize ?? 10))}
+              onPageChange={onPageChange}
+              style={{ marginTop: 4 }}
+            />
+          )}
         </div>
 
         <div
