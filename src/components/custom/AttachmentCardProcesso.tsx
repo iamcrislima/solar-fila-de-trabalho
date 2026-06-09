@@ -158,7 +158,7 @@ export function AttachmentCardProcesso({
   pinned           = false,
   onPinClick,
   selected         = false,
-  expanded         = false,
+  expanded: _expanded = false,
   onClick,
   bgColor,
 
@@ -416,29 +416,26 @@ export function AttachmentCardProcesso({
             </span>
           </div>
 
-          {/* meta-row principal (fields) */}
+          {/* meta-row: campos principais (esq.) + campos extras (dir., só se couber) */}
           <div style={{
             display:    'flex',
             alignItems: 'flex-start',
             gap:        metaGap,
-            flexWrap:   'wrap',
+            overflow:   'hidden',
+            flexWrap:   'nowrap',
+            minWidth:   0,
           }}>
             {renderMetaItems(fields)}
+            {extraFields.length > 0 && (
+              <>
+                <div style={{ flex: 1, minWidth: 24 }} />
+                <div style={{ width: 1, height: 34, backgroundColor: 'rgba(0,0,0,0.10)', flexShrink: 0, alignSelf: 'center' }} />
+                <div style={{ display: 'flex', alignItems: 'flex-start', gap: metaGap, flexShrink: 0 }}>
+                  {renderMetaItems(extraFields)}
+                </div>
+              </>
+            )}
           </div>
-
-          {/* meta-row extra (extraFields, visível apenas quando expanded=true) */}
-          {extraFields.length > 0 && (
-            <div style={{
-              maxHeight:  expanded ? 80 : 0,
-              opacity:    expanded ? 1 : 0,
-              overflow:   'hidden',
-              transition: 'max-height 180ms ease, opacity 160ms ease',
-            }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', gap: metaGap, flexWrap: 'wrap' }}>
-                {renderMetaItems(extraFields)}
-              </div>
-            </div>
-          )}
         </div>
 
         {/* ── col-actions: grade NxN + notif row ────────────────────────── */}

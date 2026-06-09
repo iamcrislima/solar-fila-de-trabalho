@@ -398,11 +398,6 @@ export function FilaDeTarefas({ onNavigate, onSidebarChange, crossCounts, onCoun
   const allExpanded = visibleTarefaIds.length > 0 && visibleTarefaIds.every(id => expandedIds.has(id));
   const allChecked  = visibleTarefaIds.length > 0 && visibleTarefaIds.every(id => checkedIds.has(id));
 
-  const toggleExpanded = (id: string) => setExpandedIds(prev => {
-    const n = new Set(prev);
-    n.has(id) ? n.delete(id) : n.add(id);
-    return n;
-  });
 
   const toggleAllExpanded = () => setExpandedIds(prev => {
     const n = new Set(prev);
@@ -1070,17 +1065,14 @@ export function FilaDeTarefas({ onNavigate, onSidebarChange, crossCounts, onCoun
       possuiFluxo={possuiFluxo}
       bgColor={getTarefaBgColor(tarefa)}
       fields={getFields(tarefa).slice(0, 4) as { label?: string; value?: unknown }[]}
-      extraFields={getFields(tarefa).slice(4, 8) as { label?: string; value?: unknown }[]}
+      extraFields={getFields(tarefa).slice(4, 7) as { label?: string; value?: unknown }[]}
       chips={taskChipsMap.get(tarefa.id) ?? tarefa.chips ?? []}
       selected={checkedIds.has(tarefa.id) || openedTaskId === tarefa.id || selectedTaskId === tarefa.id}
       compact={isTaskDetailActive}
       expanded={!isTaskDetailActive && expandedIds.has(tarefa.id)}
       onExpandClick={() => toggleTaskPanel(tarefa.id)}
       onOpenProcess={() => handleOpenProcessFromTarefa(tarefa)}
-      onClick={() => {
-        if (isTaskDetailActive || selectedTaskId === tarefa.id) toggleTaskPanel(tarefa.id);
-        else toggleExpanded(tarefa.id);
-      }}
+      onClick={() => toggleTaskPanel(tarefa.id)}
       checked={checkedIds.has(tarefa.id)}
       onCheckedChange={e => { e.stopPropagation(); toggleChecked(tarefa.id); }}
       pinned={pinnedIds.has(tarefa.id)}

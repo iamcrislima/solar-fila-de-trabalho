@@ -477,15 +477,8 @@ export function FilaDeProcessos({
   const allChecked =
     visibleProcessIds.length > 0 && visibleProcessIds.every((id) => checkedIds.has(id));
 
-  const toggleExpanded = (id: string) =>
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      return next;
-    });
   const handleProcessCardClick = (id: string) => {
-    toggleExpanded(id);
-    // Deseleciona ao clicar novamente no card selecionado (fora do overlay)
+    // Expansão removida — card sempre exibe todas as informações inline
     if (!openedProcessId && selectedProcessId === id) {
       setSelectedProcessId(null);
     }
@@ -1195,7 +1188,7 @@ export function FilaDeProcessos({
       processClass={proc.processClass}
       bgColor={processBgColorMap.get(proc.id) ?? proc.bgColor}
       fields={getFields(proc).slice(0, 4) as { label?: string; value?: unknown }[]}
-      extraFields={getFields(proc).slice(4, 8) as { label?: string; value?: unknown }[]}
+      extraFields={getFields(proc).slice(4, 7) as { label?: string; value?: unknown }[]}
       chips={processChipsMap.get(proc.id) ?? proc.chips ?? []}
       statusActions={(proc.statusActions ?? []).map((action) =>
         action.iconKey === 'assignment'

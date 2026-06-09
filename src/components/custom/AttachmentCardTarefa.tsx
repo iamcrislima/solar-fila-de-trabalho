@@ -37,7 +37,7 @@ export function AttachmentCardTarefa({
   onPinClick,
   selected         = false,
   compact          = false,
-  expanded         = false,
+  expanded: _expanded = false,
   onExpandClick,
   onClick,
   bgColor,
@@ -178,8 +178,9 @@ export function AttachmentCardTarefa({
 
           {/* Campos de leitura */}
           {!compact && (
-          <div style={{ display: 'flex', flexDirection: 'column', flex: '1 0 0', minWidth: 0, gap: 4 }}>
-            <div style={{ display: 'flex', flexDirection: 'row', gap: 4, width: '100%', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', flexDirection: 'row', flex: '1 0 0', minWidth: 0, gap: 0, overflow: 'hidden', alignItems: 'flex-start' }}>
+            {/* Campos principais */}
+            <div style={{ display: 'flex', flexDirection: 'row', gap: 4, flexWrap: 'wrap', flex: 1, minWidth: 0 }}>
               {fields.slice(0, 4).map((f, i) => (
                 <InputRead
                   key={i}
@@ -193,28 +194,26 @@ export function AttachmentCardTarefa({
                 />
               ))}
             </div>
-            <div style={{
-              maxHeight: extraFields.length > 0 && expanded ? 96 : 0,
-              opacity: extraFields.length > 0 && expanded ? 1 : 0,
-              transform: extraFields.length > 0 && expanded ? 'translateY(0)' : 'translateY(-4px)',
-              overflow: 'hidden',
-              transition: 'max-height 180ms ease, opacity 160ms ease, transform 160ms ease',
-            }}>
-              <div style={{ display: 'flex', flexDirection: 'row', gap: 4, width: '100%', flexWrap: 'wrap' }}>
-                {extraFields.slice(0, 4).map((f, i) => (
-                  <InputRead
-                    key={i}
-                    label={f.label as string}
-                    value={f.value as string}
-                    labelFontSize={labelFontSize}
-                    labelFontWeight={labelFontWeight}
-                    valueFontSize={valueFontSize}
-                    valueFontWeight={valueFontWeight}
-                    style={{ flex: '1 1 150px', minWidth: 0, ...(fieldGap !== undefined && { gap: fieldGap }) }}
-                  />
-                ))}
-              </div>
-            </div>
+            {/* Campos extras à direita — só aparecem se couber */}
+            {extraFields.length > 0 && (
+              <>
+                <div style={{ width: 1, alignSelf: 'stretch', backgroundColor: colors.surface.light, flexShrink: 0, margin: '0 8px' }} />
+                <div style={{ display: 'flex', flexDirection: 'row', gap: 4, flexWrap: 'nowrap', flex: '0 0 auto', overflow: 'hidden' }}>
+                  {extraFields.slice(0, 4).map((f, i) => (
+                    <InputRead
+                      key={i}
+                      label={f.label as string}
+                      value={f.value as string}
+                      labelFontSize={labelFontSize}
+                      labelFontWeight={labelFontWeight}
+                      valueFontSize={valueFontSize}
+                      valueFontWeight={valueFontWeight}
+                      style={{ flex: '0 0 140px', minWidth: 0, ...(fieldGap !== undefined && { gap: fieldGap }) }}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
           )}
         </div>
