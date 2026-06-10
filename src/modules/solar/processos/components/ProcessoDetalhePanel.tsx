@@ -1,4 +1,4 @@
-﻿import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Categoria } from '../../../../domain/categorias/types/categoriaTypes';
 import type { Tarefa } from '../../../../domain/processos/tarefas/models/tarefa.model';
@@ -6,17 +6,17 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import CloseIcon from '@mui/icons-material/Close';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import InfoIcon from '@mui/icons-material/Info';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import PushPinIcon from '@mui/icons-material/PushPin';
-import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { Breadcrumb } from '../../../../components/ds/atoms/Header/Breadcrumb';
-import { Button } from '../../../../components/ds/atoms/Button/Button';
-import { Tabs } from '../../../../components/ds/atoms/Tabs/Tabs';
-import { DividerH } from '../../../../components/ds/atoms/Divider';
-import { InputRead } from '../../../../components/ds/atoms/InputRead';
-import { TruncatedText } from '../../../../components/ds/atoms/TruncatedText';
-import { ButtonHint } from '../../../../components/custom/ButtonHint';
+import AddIcon from '@mui/icons-material/Add';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
+import LinkIcon from '@mui/icons-material/Link';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
+import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import BlockIcon from '@mui/icons-material/Block';
 import { TagChipList } from '../../../../components/custom/TagChipList';
 import { CategoriasDropdown } from '../../../../components/custom/CategoriasDropdown';
 import { CriarTagModal } from '../../../../components/custom/CriarTagModal';
@@ -28,12 +28,10 @@ import { useTarefasState } from '../../../../application/providers/useTarefasSta
 import { getProcessoLembretesEmDestaque } from '../../../../domain/processos/selectors/processoSelectors';
 import type { ProcessoDigital } from '../../../../domain/processos/models/processoDigital.model';
 import { colors } from '../../../../styles/tokens/colors';
-import { shadows } from '../../../../styles/tokens/shadows';
-import { typography } from '../../../../styles/tokens/typography';
-import { layout } from '../../../../styles/tokens/layout';
-import { spacing } from '../../../../styles/tokens/spacing';
 
-const tabs = [
+// ─── Types & constants ──────────────────────────────────────────────────────
+
+const TAB_LABELS = [
   'Dados',
   'Anexos',
   'Tramitações',
@@ -42,14 +40,14 @@ const tabs = [
   'Dados Adicionais',
 ];
 
-const styles = {
-  primary: colors.primary.main,
-  text: colors.surface.dark,
-  muted: colors.surface.main,
-  panelPadding: `${layout.containerPaddingY} ${layout.containerPaddingX}`,
-  contentPaddingX: 0,
-  sectionTitleGap: 12,
-  rowGap: 16,
+type PillVariant = 'blue' | 'gray' | 'green' | 'orange' | 'red';
+
+const PILL_STYLES: Record<PillVariant, { bg: string; color: string; border: string; dot: string }> = {
+  blue:   { bg: '#EFF6FF', color: '#1D4ED8', border: '#BFDBFE', dot: '#3B82F6' },
+  gray:   { bg: '#F9FAFB', color: '#6B7280', border: '#E5E7EB', dot: '#9CA3AF' },
+  green:  { bg: '#F0FDF4', color: '#15803D', border: '#BBF7D0', dot: '#22C55E' },
+  orange: { bg: '#FFF7ED', color: '#C2410C', border: '#FED7AA', dot: '#F97316' },
+  red:    { bg: '#FEF2F2', color: '#DC2626', border: '#FECACA', dot: '#EF4444' },
 };
 
 const tarefaActionLabels = {
@@ -69,16 +67,194 @@ const categoriasDropdownConfig = {
   acoes: ['Aplicar tag', 'Criar tag pessoal', 'Gerenciar tags'],
 };
 
-function FieldRow({ children }: { children: ReactNode }) {
+// ─── Helper functions ────────────────────────────────────────────────────────
+
+function getStatusPillVariant(value: string): PillVariant {
+  const v = String(value).toLowerCase();
+  if (['recebido', 'em tramitação', 'em andamento', 'ativo', 'possui fluxo', 'em análise'].some((k) => v.includes(k))) return 'blue';
+  if (['concluído', 'público', 'sim', 'aprovado', 'finalizado'].some((k) => v.includes(k))) return 'green';
+  if (['não possui', 'sem fluxo', 'aguardando', 'pendente', 'restrito', 'em espera'].some((k) => v.includes(k))) return 'orange';
+  if (['cancelado', 'rejeitado', 'privado', 'erro', 'arquivado'].some((k) => v.includes(k))) return 'red';
+  return 'gray';
+}
+
+function strVal(v: unknown): string {
+  return v == null ? '-' : String(v);
+}
+
+// ─── UI helper components ────────────────────────────────────────────────────
+
+function SmallIconBtn({
+  title,
+  onClick,
+  disabled,
+  children,
+}: {
+  title?: string;
+  onClick?: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      title={title}
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: 28,
+        height: 28,
+        borderRadius: 6,
+        border: 'none',
+        background: hovered ? '#F3F4F6' : 'transparent',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: hovered ? '#374151' : '#6B7280',
+        opacity: disabled ? 0.45 : 1,
+        transition: 'background 0.15s, color 0.15s',
+        flexShrink: 0,
+        padding: 0,
+      }}
+    >
+      {children}
+    </button>
+  );
+}
+
+function CloseBtnX({ onClick }: { onClick?: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      title="Fechar (ESC)"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width: 28,
+        height: 28,
+        border: 'none',
+        background: hovered ? '#FEE2E2' : 'transparent',
+        cursor: 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 6,
+        color: hovered ? '#DC2626' : '#9CA3AF',
+        marginLeft: 4,
+        transition: 'background 0.15s, color 0.15s',
+        padding: 0,
+        flexShrink: 0,
+      }}
+    >
+      <CloseIcon style={{ fontSize: 16 }} />
+    </button>
+  );
+}
+
+function VoltarBtn({ onClick }: { onClick?: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 6,
+        padding: '0 14px',
+        height: 32,
+        borderRadius: 7,
+        fontSize: 13,
+        fontWeight: 500,
+        cursor: 'pointer',
+        border: `1px solid ${hovered ? '#9CA3AF' : '#D1D5DB'}`,
+        background: hovered ? '#F9FAFB' : '#fff',
+        color: '#374151',
+        whiteSpace: 'nowrap',
+        transition: 'background 0.15s, border-color 0.15s',
+        fontFamily: 'inherit',
+        flexShrink: 0,
+      }}
+    >
+      <ArrowBackIcon style={{ fontSize: 14 }} />
+      Voltar
+    </button>
+  );
+}
+
+function BtnSm({
+  icon,
+  onClick,
+  children,
+}: {
+  icon?: ReactNode;
+  onClick?: () => void;
+  children: ReactNode;
+}) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        padding: '0 10px',
+        height: 26,
+        borderRadius: 6,
+        fontSize: 12,
+        fontWeight: 500,
+        cursor: 'pointer',
+        border: `1px solid ${colors.primary.main}`,
+        background: hovered ? '#EFF6FF' : '#fff',
+        color: colors.primary.main,
+        transition: 'background 0.15s',
+        fontFamily: 'inherit',
+        flexShrink: 0,
+      }}
+    >
+      {icon}
+      {children}
+    </button>
+  );
+}
+
+function SectionTitle({ children }: { children: ReactNode }) {
+  return (
+    <p
+      style={{
+        fontSize: 10.5,
+        fontWeight: 600,
+        color: '#9CA3AF',
+        textTransform: 'uppercase',
+        letterSpacing: '0.07em',
+        margin: 0,
+        marginBottom: 12,
+      }}
+    >
+      {children}
+    </p>
+  );
+}
+
+function MetaGrid({ children }: { children: ReactNode }) {
   return (
     <div
       style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-        columnGap: 24,
-        rowGap: styles.rowGap,
-        width: '100%',
-        alignItems: 'start',
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+        gap: '14px 24px',
       }}
     >
       {children}
@@ -86,119 +262,114 @@ function FieldRow({ children }: { children: ReactNode }) {
   );
 }
 
-function BlankField() {
-  return <div style={{ minHeight: 43 }} />;
-}
-
-function ReadField({ label, value }: { label?: string; value?: unknown }) {
+function MetaField({ label, value }: { label: string; value: unknown }) {
   return (
-    <InputRead
-      label={label}
-      value={value == null ? '-' : String(value)}
-      style={{ minWidth: 0, width: '100%' }}
-    />
+    <div>
+      <p style={{ fontSize: 11, color: '#9CA3AF', margin: '0 0 3px' }}>{label}</p>
+      <p style={{ fontSize: 13, color: '#111827', fontWeight: 500, margin: 0 }}>{strVal(value)}</p>
+    </div>
   );
 }
 
-function EmptyBusinessData() {
+function MetaFieldNode({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div>
+      <p style={{ fontSize: 11, color: '#9CA3AF', margin: '0 0 3px' }}>{label}</p>
+      <div>{children}</div>
+    </div>
+  );
+}
+
+function StatusPill({ label, variant = 'gray' }: { label: string; variant?: PillVariant }) {
+  const s = PILL_STYLES[variant];
   return (
     <span
       style={{
-        ...typography.styles.body2,
-        color: colors.surface.main,
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 5,
+        padding: '2px 8px',
+        borderRadius: 20,
+        fontSize: 12,
+        fontWeight: 600,
+        background: s.bg,
+        color: s.color,
+        border: `1px solid ${s.border}`,
+        lineHeight: '18px',
       }}
     >
-      Nenhum dado encontrado.
+      <span
+        style={{
+          width: 6,
+          height: 6,
+          borderRadius: '50%',
+          background: s.dot,
+          flexShrink: 0,
+          display: 'inline-block',
+        }}
+      />
+      {label}
     </span>
   );
 }
 
-function Observacoes({ items }: { items: Array<{ texto: string }> }) {
+function Divider() {
+  return <div style={{ height: 1, background: '#F3F4F6', margin: '18px 0' }} />;
+}
+
+function InfoBox({ icon, children }: { icon?: ReactNode; children: ReactNode }) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 9,
+        padding: '10px 13px',
+        background: '#F8FAFC',
+        borderRadius: 8,
+        border: '1px solid #E2E8F0',
+      }}
+    >
+      {icon && (
+        <span
+          style={{
+            fontSize: 15,
+            color: '#94A3B8',
+            marginTop: 1,
+            flexShrink: 0,
+            lineHeight: 1,
+            display: 'flex',
+          }}
+        >
+          {icon}
+        </span>
+      )}
+      <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.55 }}>{children}</div>
+    </div>
+  );
+}
+
+function EmptyState({ icon, text }: { icon: ReactNode; text: string }) {
   return (
     <div
       style={{
         display: 'flex',
         flexDirection: 'column',
-        gap: spacing.xs,
-        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px',
+        color: '#9CA3AF',
+        gap: 10,
+        textAlign: 'center',
       }}
     >
-      {items.map((item, index) => (
-        <div
-          key={`${item.texto}-${index}`}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: spacing.xs,
-            width: '100%',
-            minWidth: 0,
-          }}
-        >
-          <ReportProblemIcon
-            style={{
-              fontSize: spacing.md,
-              color: colors.warning.main,
-              flexShrink: 0,
-            }}
-          />
-          <span
-            style={{
-              ...typography.styles.body2,
-              color: colors.surface.main,
-              minWidth: 0,
-            }}
-          >
-            {item.texto}
-          </span>
-        </div>
-      ))}
+      <span style={{ fontSize: 32, opacity: 0.45, display: 'flex', lineHeight: 1 }}>{icon}</span>
+      <p style={{ fontSize: 13, margin: 0 }}>{text}</p>
     </div>
   );
 }
 
-function Section({
-  title,
-  action,
-  children,
-  withDivider = true,
-}: {
-  title?: ReactNode;
-  action?: ReactNode;
-  children?: ReactNode;
-  withDivider?: boolean;
-}) {
-  return (
-    <>
-      {withDivider && <DividerH />}
-      <section
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: styles.sectionTitleGap,
-          width: '100%',
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <h2
-            style={{
-              ...typography.styles.subtitle1,
-              color: styles.text,
-              margin: 0,
-            }}
-          >
-            {title}
-          </h2>
-          {action}
-        </div>
-        <div
-          style={{ display: 'flex', flexDirection: 'column', gap: styles.rowGap, width: '100%' }}
-        >
-          {children}
-        </div>
-      </section>
-    </>
-  );
-}
+// ─── Main component ──────────────────────────────────────────────────────────
 
 interface OpenedTaskCard {
   id: string;
@@ -215,7 +386,6 @@ export function ProcessoDetalhePanel({
   onNext,
   hasPrev = false,
   hasNext = false,
-  origin,
 }: {
   processo: Record<string, unknown>;
   onClose?: () => void;
@@ -235,15 +405,23 @@ export function ProcessoDetalhePanel({
     updateChipsMap,
     countTagUsage,
   } = useCategorias();
-  const { getTarefaAssignment, isTarefaAtribuida, toggleTarefaAtribuicao, mergeTarefaAssignment } =
-    useTarefasState();
+  const {
+    getTarefaAssignment,
+    isTarefaAtribuida,
+    toggleTarefaAtribuicao,
+    mergeTarefaAssignment,
+  } = useTarefasState();
+
   const [activeTab, setActiveTab] = useState(initialTab);
   const [openedTaskCard, setOpenedTaskCard] = useState<OpenedTaskCard | null>(null);
   const [createTagOpen, setCreateTagOpen] = useState(false);
   const [manageTagsOpen, setManageTagsOpen] = useState(false);
+
   const categoriaItems = useMemo(
     () => [
-      ...new Map([...externalTags, ...personalTags].map((c) => [c.label, c] as const)).values(),
+      ...new Map(
+        [...externalTags, ...personalTags].map((c) => [c.label, c] as const)
+      ).values(),
     ],
     [externalTags, personalTags]
   );
@@ -254,21 +432,22 @@ export function ProcessoDetalhePanel({
   }, [initialTab, processo?.id]);
 
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose?.(); };
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose?.();
+    };
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
   }, [onClose]);
 
   if (!processo) return null;
 
-  const entityLabel = processo.tipo === 'Documento' ? 'Documento Digital' : 'Processo Digital';
-  const originLabel = origin?.label ?? 'Fila de trabalho';
-
   const dados = (processo.dados ?? {}) as Record<string, unknown>;
   const fluxo = (processo.fluxo ?? {}) as Record<string, unknown>;
   const recebimento = (processo.recebimento ?? {}) as Record<string, unknown>;
   const possuiFluxo = !!(processo.indicadores as Record<string, unknown>)?.possuiFluxo;
-  const lembretesDestaque = getProcessoLembretesEmDestaque(processo as unknown as ProcessoDigital);
+  const lembretesDestaque = getProcessoLembretesEmDestaque(
+    processo as unknown as ProcessoDigital
+  );
   const processChipsMap = getChipsMap('processos');
   const processChips = processChipsMap.get(processo.id as string) ?? [];
   const taskChipsMap = getChipsMap('tarefas');
@@ -291,7 +470,10 @@ export function ProcessoDetalhePanel({
     cancelar: !!openedTaskCard,
   };
 
-  const handleApplyTags = (tagStates: Map<string, string>, targetIds: Set<string> = new Set()) => {
+  const handleApplyTags = (
+    tagStates: Map<string, string>,
+    targetIds: Set<string> = new Set()
+  ) => {
     updateChipsMap('tarefas', (prev) => {
       const next = new Map(prev);
       targetIds.forEach((id) => {
@@ -320,281 +502,413 @@ export function ProcessoDetalhePanel({
     deletePersonalTag(label);
   };
 
+  // ─── Render ───────────────────────────────────────────────────────────────
+
   return (
     <div
       style={{
-        position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        gap: layout.blockGap,
-        width: '100%',
         height: '100%',
-        padding: styles.panelPadding,
-        boxSizing: 'border-box',
-        borderRadius: 8,
-        background: colors.surface.xxxl,
-        boxShadow: shadows.level2,
+        width: '100%',
+        background: '#fff',
+        borderRadius: 12,
+        border: '1px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.08)',
         overflow: 'hidden',
+        boxSizing: 'border-box',
+        position: 'relative',
       }}
     >
-      <header
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 8,
-          flexWrap: 'wrap',
-          flexShrink: 0,
-          width: '100%',
-        }}
-      >
-        <Breadcrumb
-          items={[{ label: originLabel, onClick: onClose }, { label: entityLabel }]}
-          style={{ flex: '1 1 280px', minWidth: 0 }}
-        />
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 4,
-            flexWrap: 'wrap',
-          }}
-        >
-          <ButtonHint
-            icon={<ArrowBackIcon />}
-            hint="Anterior"
-
-            onClick={onPrev}
-            disabled={!hasPrev}
-          />
-          <ButtonHint
-            icon={<ArrowForwardIcon />}
-            hint="Próximo"
-
-            onClick={onNext}
-            disabled={!hasNext}
-          />
-          {onClose && (
-            <ButtonHint
-              icon={<CloseIcon />}
-              hint="Fechar (ESC)"
-              onClick={onClose}
-            />
-          )}
-        </div>
-      </header>
-      <DividerH />
-
+      {/* ── HEADER ── */}
       <div
         style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          width: '100%',
+          padding: '16px 20px 0',
+          borderBottom: '1px solid #EBEBEB',
           flexShrink: 0,
         }}
       >
+        {/* Top row */}
         <div
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: 8,
-            flex: '0 0 auto',
-            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            gap: 12,
+            marginBottom: 14,
           }}
         >
-          <TruncatedText
-            text={processo.numero as string}
+          {/* Left: process ID + icon actions + chips */}
+          <div
             style={{
-              ...typography.styles.subtitle1,
-              color: styles.text,
-              flex: '0 1 auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flexWrap: 'wrap',
+              minWidth: 0,
             }}
           >
-            {processo.numero as string}
-          </TruncatedText>
-          <InfoIcon style={{ fontSize: 24, color: styles.primary, flexShrink: 0 }} />
-          <StarBorderIcon style={{ fontSize: 24, color: styles.primary, flexShrink: 0 }} />
-          <PushPinIcon style={{ fontSize: 24, color: styles.primary, flexShrink: 0 }} />
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 600,
+                color: colors.primary.main,
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {processo.numero as string}
+            </span>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <SmallIconBtn title="Informações">
+                <InfoOutlinedIcon style={{ fontSize: 16 }} />
+              </SmallIconBtn>
+              <SmallIconBtn title="Fixar">
+                <PushPinIcon style={{ fontSize: 16 }} />
+              </SmallIconBtn>
+              <SmallIconBtn title="Favoritar">
+                <StarBorderIcon style={{ fontSize: 16 }} />
+              </SmallIconBtn>
+            </div>
+
+            {processChips.length > 0 && (
+              <div
+                style={{ display: 'flex', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}
+              >
+                <TagChipList
+                  chips={processChips}
+                  overflowVariant="full"
+                  overflowDisclosure="popover"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Right: prev/next + voltar + criar tarefa split + close */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              flexShrink: 0,
+            }}
+          >
+            {(hasPrev || hasNext) && (
+              <>
+                <SmallIconBtn title="Anterior" onClick={onPrev} disabled={!hasPrev}>
+                  <ArrowBackIcon style={{ fontSize: 16 }} />
+                </SmallIconBtn>
+                <SmallIconBtn title="Próximo" onClick={onNext} disabled={!hasNext}>
+                  <ArrowForwardIcon style={{ fontSize: 16 }} />
+                </SmallIconBtn>
+              </>
+            )}
+
+            <VoltarBtn onClick={onClose} />
+
+            {/* Split button */}
+            <div
+              style={{
+                display: 'flex',
+                borderRadius: 7,
+                overflow: 'hidden',
+                border: `1px solid ${colors.primary.main}`,
+              }}
+            >
+              <button
+                type="button"
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = '#0046b5';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = colors.primary.main;
+                }}
+                style={{
+                  background: colors.primary.main,
+                  color: '#fff',
+                  border: 'none',
+                  padding: '0 14px',
+                  height: 32,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'background 0.15s',
+                  fontFamily: 'inherit',
+                }}
+              >
+                <AddIcon style={{ fontSize: 14 }} />
+                Criar tarefa
+              </button>
+              <div
+                style={{
+                  width: 1,
+                  background: 'rgba(255,255,255,0.25)',
+                  flexShrink: 0,
+                  alignSelf: 'stretch',
+                }}
+              />
+              <button
+                type="button"
+                title="Mais ações"
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = '#0046b5';
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLButtonElement).style.background = colors.primary.main;
+                }}
+                style={{
+                  width: 30,
+                  background: colors.primary.main,
+                  color: '#fff',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.15s',
+                }}
+              >
+                <ArrowDropDownIcon style={{ fontSize: 13 }} />
+              </button>
+            </div>
+
+            <CloseBtnX onClick={onClose} />
+          </div>
         </div>
 
-        {processChips.length > 0 && (
-          <div style={{ flex: '1 1 auto', minWidth: 0 }}>
-            <TagChipList
-              chips={processChips}
-              overflowVariant="full"
-              overflowDisclosure="popover"
-            />
-          </div>
-        )}
-
+        {/* Tabs row */}
         <div
           style={{
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            gap: 8,
-            flex: '1 1 300px',
-            flexWrap: 'wrap',
+            gap: 0,
+            overflowX: 'auto',
           }}
         >
-          <Button type="primary" variant="outline" onClick={onClose}>
-            Voltar
-          </Button>
-          <Button type="primary" variant="filled">
-            Criar tarefa
-          </Button>
-          <Button type="primary" variant="outline" trailingIcon={<ArrowDropDownIcon />}>
-            Ações
-          </Button>
+          {TAB_LABELS.map((label, i) => (
+            <button
+              key={label}
+              type="button"
+              role="tab"
+              onClick={() => setActiveTab(i)}
+              style={{
+                padding: '8px 14px',
+                fontSize: 13,
+                flexShrink: 0,
+                color: activeTab === i ? colors.primary.main : '#6B7280',
+                cursor: 'pointer',
+                borderBottom: activeTab === i
+                  ? `2px solid ${colors.primary.main}`
+                  : '2px solid transparent',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+                background: 'transparent',
+                fontWeight: activeTab === i ? 500 : 400,
+                whiteSpace: 'nowrap',
+                transition: 'color 0.15s, border-color 0.15s',
+                userSelect: 'none',
+                fontFamily: 'inherit',
+              }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      <Tabs
-        tabs={tabs.map((label) => ({ label }))}
-        active={activeTab}
-        onChange={setActiveTab}
-        activeColor={styles.primary}
-        inactiveColor={styles.muted}
-        style={{ width: '100%', flexShrink: 0 }}
-      />
-
-      <main
+      {/* ── BODY ── */}
+      <div
         style={{
-          flex: 1,
-          minHeight: 0,
+          padding: activeTab === 3 ? '20px 0 24px' : '20px 20px 24px',
           overflowY: 'auto',
-          overflowX: 'hidden',
-          padding:
-            activeTab === 3
-              ? `${layout.blockGap} 0 ${layout.containerPaddingY}`
-              : `${layout.blockGap} ${styles.contentPaddingX} ${layout.containerPaddingY}`,
+          flex: 1,
           boxSizing: 'border-box',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: layout.blockGap,
         }}
       >
+        {/* ── Tab 0: Dados ── */}
         {activeTab === 0 && (
           <>
+            {/* Observações / Lembretes em destaque */}
             {lembretesDestaque.length > 0 && (
-              <Section title="Observações" withDivider={false}>
-                <Observacoes items={lembretesDestaque} />
-              </Section>
+              <>
+                {lembretesDestaque.map((l, i) => (
+                  <div key={`lembrete-${i}`} style={{ marginBottom: 10 }}>
+                    <InfoBox icon={<WarningAmberIcon style={{ fontSize: 15 }} />}>
+                      {l.texto}
+                    </InfoBox>
+                  </div>
+                ))}
+                <Divider />
+              </>
             )}
 
-            <Section title={`Dados do ${entityLabel}`} withDivider={lembretesDestaque.length > 0}>
-              <FieldRow>
-                <ReadField label="Órgão" value={dados.orgao} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Unidade Responsável" value={dados.unidadeResponsavel} />
-                <ReadField label="Data de Entrada" value={dados.dataEntrada} />
-                <ReadField label="Autuado em" value={dados.autuadoEm} />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Interessado" value={dados.interessado} />
-                <ReadField label="Ativo" value={dados.ativo} />
-                <ReadField label="Principal" value={dados.principal} />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Classificação" value={processo.classificacao} />
-                <ReadField label="Origem abertura" value={dados.origemAbertura} />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Tipo de processo" value={dados.tipoProcesso} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Detalhamento do assunto" value={dados.detalhamentoAssunto} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField
-                  label="Informações complementares"
-                  value={dados.informacoesComplementares}
+            {/* Processo digital */}
+            <SectionTitle>Processo digital</SectionTitle>
+            <MetaGrid>
+              <MetaField label="Órgão" value={dados.orgao} />
+              <MetaField label="Unidade responsável" value={dados.unidadeResponsavel} />
+              <MetaField label="Unidade origem" value={dados.unidadeOrigem} />
+              <MetaField label="Interessado" value={dados.interessado} />
+              <MetaField label="Município" value={dados.municipio} />
+              <MetaField label="Origem abertura" value={dados.origemAbertura} />
+              <MetaField label="Data de entrada" value={dados.dataEntrada} />
+              <MetaField label="Autuado em" value={dados.autuadoEm} />
+              <MetaField
+                label="Tipo"
+                value={
+                  processo.tipo === 'Documento' ? 'Documento Digital' : 'Processo Digital'
+                }
+              />
+              <MetaField label="Cadastrado por" value={dados.cadastradoPor} />
+              <MetaField label="Autuado por" value={dados.autuadoPor} />
+              <div />
+              <MetaFieldNode label="Situação">
+                <StatusPill
+                  label={strVal(dados.situacao)}
+                  variant={getStatusPillVariant(strVal(dados.situacao))}
                 />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Município" value={dados.municipio} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Unidade Origem" value={dados.unidadeOrigem} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Cadastrado por" value={dados.cadastradoPor} />
-                <ReadField label="Autuado por" value={dados.autuadoPor} />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField
-                  label="Tipo"
-                  value={processo.tipo === 'Documento' ? 'Documento Digital' : 'Processo Digital'}
+              </MetaFieldNode>
+              <MetaFieldNode label="Prioritário">
+                <StatusPill
+                  label={strVal(dados.prioritario)}
+                  variant={getStatusPillVariant(strVal(dados.prioritario))}
                 />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Situação" value={dados.situacao} />
-                <ReadField label="Prioritário" value={dados.prioritario} />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Controle de acesso" value={dados.controleAcesso} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-            </Section>
-
-            <Section title="Dados do Fluxo">
-              <FieldRow>
-                <ReadField
-                  label="Status"
-                  value={possuiFluxo ? 'Possui fluxo' : 'Não possui fluxo'}
+              </MetaFieldNode>
+              <MetaFieldNode label="Controle de acesso">
+                <StatusPill
+                  label={strVal(dados.controleAcesso)}
+                  variant={getStatusPillVariant(strVal(dados.controleAcesso))}
                 />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-            </Section>
+              </MetaFieldNode>
+            </MetaGrid>
 
-            <Section title="Unidade atual">
-              <FieldRow>
-                <ReadField label="Unidade" value={fluxo.unidadeAtual} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-              <FieldRow>
-                <ReadField label="Recebimento" value={recebimento.recebidoEm} />
-                <BlankField />
-                <BlankField />
-              </FieldRow>
-            </Section>
+            <Divider />
 
-            <Section
-              title="Dados de negócio"
-              action={
-                <Button type="primary" variant="outline">
-                  Adicionar
-                </Button>
-              }
+            {/* Classificação */}
+            <SectionTitle>Classificação</SectionTitle>
+            <MetaGrid>
+              <MetaField label="Tipo de processo" value={dados.tipoProcesso} />
+              <MetaField label="Classificação" value={processo.classificacao} />
+              <MetaField label="Detalhamento" value={dados.detalhamentoAssunto} />
+            </MetaGrid>
+
+            {/* Info complementar */}
+            {dados.informacoesComplementares && (
+              <>
+                <Divider />
+                <InfoBox icon={<ChatBubbleOutlineIcon style={{ fontSize: 15 }} />}>
+                  {strVal(dados.informacoesComplementares)}
+                </InfoBox>
+              </>
+            )}
+
+            {/* Process chips / tags */}
+            {processChips.length > 0 && (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  marginTop: 14,
+                  flexWrap: 'wrap',
+                }}
+              >
+                <TagChipList
+                  chips={processChips}
+                  overflowVariant="full"
+                  overflowDisclosure="popover"
+                />
+              </div>
+            )}
+
+            <Divider />
+
+            {/* Dados do fluxo */}
+            <SectionTitle>Dados do fluxo</SectionTitle>
+            <MetaGrid>
+              <MetaFieldNode label="Status">
+                <StatusPill
+                  label={possuiFluxo ? 'Possui fluxo' : 'Não possui fluxo'}
+                  variant={possuiFluxo ? 'green' : 'orange'}
+                />
+              </MetaFieldNode>
+            </MetaGrid>
+
+            <Divider />
+
+            {/* Unidade atual */}
+            <SectionTitle>Unidade atual</SectionTitle>
+            <MetaGrid>
+              <MetaField label="Unidade" value={fluxo.unidadeAtual} />
+              <MetaField label="Recebimento" value={recebimento.recebidoEm} />
+            </MetaGrid>
+
+            <Divider />
+
+            {/* Dados de negócio */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 12,
+              }}
             >
-              <EmptyBusinessData />
-            </Section>
+              <p
+                style={{
+                  fontSize: 10.5,
+                  fontWeight: 600,
+                  color: '#9CA3AF',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.07em',
+                  margin: 0,
+                }}
+              >
+                Dados de negócio
+              </p>
+              <BtnSm icon={<AddIcon style={{ fontSize: 13 }} />}>Adicionar</BtnSm>
+            </div>
+            <div
+              style={{
+                padding: 20,
+                background: '#FAFAFA',
+                borderRadius: 8,
+                border: '1px dashed #E5E7EB',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+                textAlign: 'center',
+              }}
+            >
+              <BlockIcon style={{ fontSize: 24, color: '#9CA3AF', opacity: 0.45 }} />
+              <p style={{ fontSize: 13, color: '#9CA3AF', margin: 0 }}>
+                Nenhum dado de negócio encontrado.
+              </p>
+            </div>
           </>
         )}
 
+        {/* ── Tab 1: Anexos ── */}
+        {activeTab === 1 && (
+          <EmptyState
+            icon={<AttachFileIcon style={{ fontSize: 32 }} />}
+            text="Nenhum anexo vinculado a este processo."
+          />
+        )}
+
+        {/* ── Tab 2: Tramitações ── */}
+        {activeTab === 2 && (
+          <EmptyState
+            icon={<SyncAltIcon style={{ fontSize: 32 }} />}
+            text="Sem tramitações registradas."
+          />
+        )}
+
+        {/* ── Tab 3: Tarefas ── */}
         {activeTab === 3 && (
           <ProcessoTarefasTab
             processo={processo}
@@ -607,16 +921,31 @@ export function ProcessoDetalhePanel({
           />
         )}
 
-        {activeTab !== 0 && activeTab !== 3 && (
-          <span style={{ ...typography.styles.body2, color: colors.surface.main }}>
-            Conteúdo em construção.
-          </span>
+        {/* ── Tab 4: Juntadas/Vinculações ── */}
+        {activeTab === 4 && (
+          <EmptyState
+            icon={<LinkIcon style={{ fontSize: 32 }} />}
+            text="Sem juntadas ou vinculações."
+          />
         )}
-      </main>
 
+        {/* ── Tab 5: Dados Adicionais ── */}
+        {activeTab === 5 && (
+          <EmptyState
+            icon={<ListAltIcon style={{ fontSize: 32 }} />}
+            text="Nenhum dado adicional cadastrado."
+          />
+        )}
+      </div>
+
+      {/* ── Overlays & Modals ── */}
       <TarefaDetalheOverlay
         tarefa={(openedTaskForPanel ?? undefined) as Record<string, unknown> | undefined}
-        chips={openedTaskId ? (taskChipsMap.get(openedTaskId) ?? openedTaskCard?.chips ?? []) : []}
+        chips={
+          openedTaskId
+            ? (taskChipsMap.get(openedTaskId) ?? openedTaskCard?.chips ?? [])
+            : []
+        }
         actionLabels={tarefaActionLabels}
         actionStates={openedTaskActionStates}
         categoriasAction={
@@ -627,7 +956,9 @@ export function ProcessoDetalhePanel({
               acoes={categoriasDropdownConfig.acoes}
               checkedIds={new Set([openedTaskId!])}
               processChipsMap={taskChipsMap}
-              onApplyTags={(tagStates) => handleApplyTags(tagStates, new Set([openedTaskId!]))}
+              onApplyTags={(tagStates) =>
+                handleApplyTags(tagStates, new Set([openedTaskId!]))
+              }
               onCreateTag={() => setCreateTagOpen(true)}
               onManageTags={() => setManageTagsOpen(true)}
               hint={tarefaActionLabels.categorias}

@@ -18,10 +18,8 @@ import { spacing } from '../../styles/tokens/spacing';
 import { layout } from '../../styles/tokens/layout';
 import { colors } from '../../styles/tokens/colors';
 import { typography } from '../../styles/tokens/typography';
-import { shadows } from '../../styles/tokens/shadows';
 import { borders } from '../../styles/tokens/borders';
 
-import ArrowBackIcon    from '@mui/icons-material/ArrowBack';
 import RefreshIcon      from '@mui/icons-material/Refresh';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import BackupTableIcon  from '@mui/icons-material/BackupTable';
@@ -210,7 +208,7 @@ export function WorkQueue({
   sidePanelOpen = false,
   overlayPanel,
   overlayPanelOpen = false,
-  overlayOnClose,
+  overlayOnClose: _overlayOnClose,
   onOpenPersonalizacao,
   onRefresh,
   actionSlotLocked = false,
@@ -437,51 +435,27 @@ export function WorkQueue({
           aria-hidden={!overlayPanelOpen}
           style={{
             position: 'fixed',
-            inset: 0,
-            zIndex: 20,
-            boxSizing: 'border-box',
-            background: 'transparent',
+            top: '50%',
+            left: '50%',
+            transform: overlayPanelOpen
+              ? 'translate(-50%, -50%)'
+              : 'translate(-50%, -48%) scale(0.97)',
+            zIndex: 210,
+            width: 'min(90vw, 720px)',
+            height: 'min(90vh, 900px)',
             opacity: overlayPanelOpen ? 1 : 0,
             pointerEvents: overlayPanelOpen ? 'auto' : 'none',
-            transform: overlayPanelOpen ? 'translateX(0)' : 'translateX(64px)',
-            transition: 'opacity 220ms ease, transform 260ms cubic-bezier(0.2, 0, 0, 1)',
-            overflow: 'hidden',
+            transition: 'opacity 200ms ease, transform 220ms cubic-bezier(0.2, 0, 0, 1)',
+            overflow: 'visible',
+            boxSizing: 'border-box',
           }}
         >
           {overlayPanel}
         </div>
-        {overlayPanelOpen && overlayOnClose && (
-          <button
-            type="button"
-            aria-label="Voltar para a fila"
-            onClick={overlayOnClose}
-            style={{
-              position: 'absolute',
-              left: 8,
-              top: '50%',
-              transform: 'translateY(-50%)',
-              zIndex: 25,
-              width: 32,
-              height: 32,
-              border: 'none',
-              borderRadius: 500,
-              background: colors.primary.main,
-              color: colors.surface.xxxl,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: shadows.level2,
-              flexShrink: 0,
-            }}
-          >
-            <ArrowBackIcon style={{ fontSize: 20 }} />
-          </button>
-        )}
         <Overlay
           open={overlayPanelOpen}
-          backdropColor="rgba(0,0,0,0.5)"
-          zIndex={18}
+          backdropColor="rgba(15,20,30,0.45)"
+          zIndex={200}
           closeOnBackdrop={false}
           contentStyle={{ display: 'none' }}
         />
