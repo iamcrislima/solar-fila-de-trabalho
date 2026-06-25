@@ -1,38 +1,26 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ArrowDropDownIcon    from '@mui/icons-material/ArrowDropDown';
-import ArrowDropUpIcon      from '@mui/icons-material/ArrowDropUp';
-import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutlined';
-import EditOutlinedIcon     from '@mui/icons-material/EditOutlined';
-import ViewListIcon         from '@mui/icons-material/ViewList';
-import { DropdownMenuItem } from '../ds/atoms/DropdownMenu';
-import { TruncatedText }    from '../ds/atoms/TruncatedText';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon   from '@mui/icons-material/KeyboardArrowUp';
+import AddCircleOutlineIcon  from '@mui/icons-material/AddCircleOutlined';
+import EditOutlinedIcon      from '@mui/icons-material/EditOutlined';
+import ViewListIcon          from '@mui/icons-material/ViewList';
+import CheckIcon             from '@mui/icons-material/Check';
+import { TruncatedText }     from '../ds/atoms/TruncatedText';
 import { colors }     from '../../styles/tokens/colors';
 import { typography } from '../../styles/tokens/typography';
 import { shadows }    from '../../styles/tokens/shadows';
-import { borders }    from '../../styles/tokens/borders';
 
-// VisualizacaoDropdown — Figma: mQDpB8dWZNnULO7ShaY9Fs node 2361:8355 / 2120:6906
-// Edit icon appears inside the trigger field when a custom view is selected.
-// Dropdown list items have no edit button — uniform DropdownMenuItem style.
+interface VisualizacaoDropdownProps {
+  value?: string;
+  options?: Array<{ label: string; id?: string }>;
+  onCreateCustom?: () => void;
+  myViews?: Array<{ id?: string; label: string }>;
+  onEditView?: (id: string) => void;
+  onChange?: (value: string) => void;
+  style?: unknown;
+  variant?: 'default' | 'toolbar';
+}
 
-const ITEM_ROW = {
-  display:         'flex',
-  alignItems:      'center',
-  gap:             8,
-  paddingLeft:     8,
-  paddingRight:    4,
-  paddingTop:      4,
-  paddingBottom:   4,
-  height:          30,
-  width:           '100%',
-  boxSizing:       'border-box',
-  backgroundColor: colors.surface.xxxl,
-  border:          'none',
-  cursor:          'pointer',
-  textAlign:       'left',
-};
-
-interface VisualizacaoDropdownProps { value?: string; options?: Array<{ label: string; id?: string }>; onCreateCustom?: () => void; myViews?: Array<{ id?: string; label: string }>; onEditView?: (id: string) => void; onChange?: (value: string) => void; style?: unknown; variant?: 'default' | 'toolbar'; }
 export function VisualizacaoDropdown({
   value         = 'Visualização padrão',
   options       = [],
@@ -57,13 +45,45 @@ export function VisualizacaoDropdown({
   }, [open]);
 
   const isCustomViewActive = myViews.some(v => v.label === value);
-  const select = (item: string | { label: string; id?: string }) => { onChange?.(typeof item === "string" ? item : (item.label ?? "")); setOpen(false); };
+  const select = (item: string | { label: string; id?: string }) => { onChange?.(typeof item === 'string' ? item : (item.label ?? '')); setOpen(false); };
   const isSelected = (item: { label: string; id?: string }): boolean => item.label === value;
 
   const handleEditClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     const activeView = myViews.find(v => v.label === value);
-    if (activeView) onEditView?.(activeView?.id ?? activeView?.label ?? "");
+    if (activeView) onEditView?.(activeView?.id ?? activeView?.label ?? '');
+  };
+
+  const modernTrigger: React.CSSProperties = {
+    display:         'flex',
+    alignItems:      'center',
+    gap:             6,
+    padding:         '0 10px',
+    height:          32,
+    boxSizing:       'border-box',
+    border:          `1px solid ${open ? '#0058db' : hovered ? '#9CA3AF' : '#D1D5DB'}`,
+    borderRadius:    8,
+    backgroundColor: '#fff',
+    cursor:          'pointer',
+    whiteSpace:      'nowrap',
+    transition:      'border-color 0.15s',
+    userSelect:      'none',
+    minWidth:        100,
+  };
+
+  const defaultTrigger: React.CSSProperties = {
+    display:         'flex',
+    alignItems:      'center',
+    paddingLeft:     12,
+    paddingRight:    8,
+    height:          32,
+    border:          `1px solid ${colors.surface.medium}`,
+    borderRadius:    4,
+    backgroundColor: colors.surface.xxxl,
+    cursor:          'pointer',
+    width:           '100%',
+    boxSizing:       'border-box',
+    gap:             6,
   };
 
   return (
@@ -77,57 +97,26 @@ export function VisualizacaoDropdown({
         role="button"
         tabIndex={0}
         onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') setOpen(v => !v); }}
-        style={variant === 'toolbar' ? {
-          /* ── Toolbar tbtn ── */
-          display:         'flex',
-          alignItems:      'center',
-          gap:             5,
-          padding:         '5px 9px',
-          height:          30,
-          boxSizing:       'border-box',
-          border:          `0.5px solid ${open || hovered ? 'rgba(0,0,0,0.18)' : 'transparent'}`,
-          borderRadius:    borders.radius.lg,
-          backgroundColor: open || hovered ? colors.surface.xl : 'transparent',
-          cursor:          'pointer',
-          whiteSpace:      'nowrap',
-          transition:      'background 0.1s, border-color 0.1s, color 0.1s',
-          userSelect:      'none',
-        } : {
-          /* ── Default select ── */
-          display:         'flex',
-          alignItems:      'center',
-          paddingLeft:     12,
-          paddingRight:    8,
-          height:          32,
-          border:          `1px solid ${colors.surface.medium}`,
-          borderRadius:    4,
-          backgroundColor: colors.surface.xxxl,
-          cursor:          'pointer',
-          width:           '100%',
-          boxSizing:       'border-box',
-          gap:             6,
-        }}
+        style={variant === 'toolbar' ? modernTrigger : defaultTrigger}
       >
         {variant === 'toolbar' ? (
-          /* ── Toolbar: ícone + label + seta ── */
           <>
-            <ViewListIcon style={{ fontSize: 15, color: open || hovered ? colors.secondary.dark : colors.surface.main, flexShrink: 0 }} />
-            <span style={{ ...typography.styles.caption, color: open || hovered ? colors.secondary.dark : colors.secondary.main, whiteSpace: 'nowrap', lineHeight: '20px' }}>
-              Visualização
+            <ViewListIcon style={{ fontSize: 15, color: open ? '#0058db' : '#6B7280', flexShrink: 0 }} />
+            <span style={{ ...typography.styles.caption, color: open ? '#0058db' : '#374151', whiteSpace: 'nowrap', lineHeight: '20px', fontWeight: open ? 600 : 400 }}>
+              {value}
             </span>
             {open
-              ? <ArrowDropUpIcon   style={{ fontSize: 14, color: colors.surface.main, flexShrink: 0, marginLeft: 1 }} />
-              : <ArrowDropDownIcon style={{ fontSize: 14, color: colors.surface.main, flexShrink: 0, marginLeft: 1 }} />}
+              ? <KeyboardArrowUpIcon   style={{ fontSize: 16, color: open ? '#0058db' : '#9CA3AF', flexShrink: 0 }} />
+              : <KeyboardArrowDownIcon style={{ fontSize: 16, color: '#9CA3AF', flexShrink: 0 }} />}
           </>
         ) : (
-          /* ── Default: texto do valor selecionado ── */
           <>
             <TruncatedText text={value} style={{ ...typography.styles.body2, color: colors.surface.dark, flex: 1, textAlign: 'left' }}>
               {value}
             </TruncatedText>
             {open
-              ? <ArrowDropUpIcon   style={{ fontSize: 20, color: colors.surface.main, flexShrink: 0 }} />
-              : <ArrowDropDownIcon style={{ fontSize: 20, color: colors.surface.main, flexShrink: 0 }} />}
+              ? <KeyboardArrowUpIcon   style={{ fontSize: 20, color: colors.surface.main, flexShrink: 0 }} />
+              : <KeyboardArrowDownIcon style={{ fontSize: 20, color: colors.surface.main, flexShrink: 0 }} />}
             {isCustomViewActive && (
               <button
                 type="button"
@@ -145,51 +134,66 @@ export function VisualizacaoDropdown({
       {open && (
         <div style={{
           position:        'absolute',
-          top:             '100%',
+          top:             'calc(100% + 4px)',
           left:            0,
           minWidth:        '100%',
-          backgroundColor: colors.surface.xxxl,
-          boxShadow:       shadows.level2,
+          backgroundColor: '#fff',
+          boxShadow:       shadows.level2 ?? '0 4px 16px rgba(0,0,0,0.12)',
+          borderRadius:    10,
+          border:          '1px solid #E5E7EB',
           zIndex:          100,
           display:         'flex',
           flexDirection:   'column',
           maxWidth:        'calc(100vw - 16px)',
-          overflowX:       'auto',
+          overflow:        'hidden',
+          padding:         '6px 0',
         }}>
           {/* Static options */}
           {options.map((item) => (
-            <DropdownMenuItem
+            <VisualizacaoItem
               key={item.id ?? item.label}
               label={item.label}
-              active={isSelected(item)}
+              selected={isSelected(item)}
               onClick={() => select(item)}
-              style={{ minWidth: '100%' }}
             />
           ))}
 
           {/* Create custom view */}
-          <div style={{ ...(ITEM_ROW as object), cursor: 'pointer' }} onClick={onCreateCustom}>
-            <AddCircleOutlineIcon style={{ fontSize: 24, color: colors.surface.dark, flexShrink: 0 }} />
-            <TruncatedText text="Criar visualização personalizada" style={{ ...typography.styles.caption, color: colors.surface.dark, flex: 1 }}>
+          <button
+            type="button"
+            onClick={onCreateCustom}
+            style={{
+              display:         'flex',
+              alignItems:      'center',
+              gap:             8,
+              padding:         '6px 12px',
+              width:           '100%',
+              boxSizing:       'border-box',
+              background:      'none',
+              border:          'none',
+              cursor:          'pointer',
+              textAlign:       'left',
+            }}
+          >
+            <AddCircleOutlineIcon style={{ fontSize: 16, color: '#6B7280', flexShrink: 0 }} />
+            <span style={{ ...typography.styles.caption, color: '#374151' }}>
               Criar visualização personalizada
-            </TruncatedText>
-          </div>
+            </span>
+          </button>
 
-          {/* Custom views — same DropdownMenuItem style, no edit button in list */}
+          {/* Custom views */}
           {myViews.length > 0 && (
             <>
-              <div style={{ ...(ITEM_ROW as object), cursor: 'default' }}>
-                <span style={{ ...typography.styles.topIcon, color: colors.surface.dark }}>
-                  Minhas visualizações
-                </span>
+              <div style={{ height: 1, backgroundColor: '#F3F4F6', margin: '4px 0' }} />
+              <div style={{ padding: '2px 12px 4px', fontSize: 10, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                Minhas visualizações
               </div>
               {myViews.map((item) => (
-                <DropdownMenuItem
+                <VisualizacaoItem
                   key={item.id ?? item.label}
                   label={item.label}
-                  active={isSelected(item)}
+                  selected={isSelected(item)}
                   onClick={() => select(item)}
-                  style={{ minWidth: '100%' }}
                 />
               ))}
             </>
@@ -197,5 +201,37 @@ export function VisualizacaoDropdown({
         </div>
       )}
     </div>
+  );
+}
+
+function VisualizacaoItem({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display:         'flex',
+        alignItems:      'center',
+        gap:             8,
+        padding:         '6px 12px',
+        width:           '100%',
+        boxSizing:       'border-box',
+        backgroundColor: selected ? '#edf2ff' : hov ? '#F9FAFB' : '#fff',
+        border:          'none',
+        cursor:          'pointer',
+        textAlign:       'left',
+        transition:      'background 0.1s',
+      }}
+    >
+      <div style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        {selected && <CheckIcon style={{ fontSize: 14, color: '#0058db' }} />}
+      </div>
+      <span style={{ ...typography.styles.caption, color: selected ? '#0058db' : '#374151', whiteSpace: 'nowrap', fontWeight: selected ? 600 : 400 }}>
+        {label}
+      </span>
+    </button>
   );
 }

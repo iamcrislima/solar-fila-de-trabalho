@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { ReactNode, CSSProperties } from 'react';
-import PrintIcon from '@mui/icons-material/Print';
+import { IconPrinter } from '@tabler/icons-react';
 import { Tooltip } from '../ds/atoms/Tooltip/Tooltip';
 import { colors } from '@/styles/tokens/colors';
 import { borders } from '@/styles/tokens/borders';
@@ -21,7 +21,7 @@ interface ButtonHintProps {
   style?: CSSProperties;
 }
 
-type IconEl = React.ReactElement<{ style?: CSSProperties }>;
+type IconEl = React.ReactElement<{ style?: CSSProperties; size?: number; stroke?: number }>;
 
 export function ButtonHint({ icon, hint = 'Caption here', label, variant = 'default', onClick, disabled = false, style }: ButtonHintProps) {
   const [hovered, setHovered] = useState(false);
@@ -40,10 +40,10 @@ export function ButtonHint({ icon, hint = 'Caption here', label, variant = 'defa
 
   const hasLabel = !!label;
   const iconSize  = hasLabel ? 15 : 20;
-  const baseIconStyle: CSSProperties = { fontSize: iconSize, color: accentColor };
+  const baseIconStyle: CSSProperties = { color: accentColor };
   const iconEl = icon
-    ? React.cloneElement(icon as IconEl, { style: { ...baseIconStyle, ...(icon as IconEl).props?.style } })
-    : <PrintIcon style={baseIconStyle} />;
+    ? React.cloneElement(icon as IconEl, { size: iconSize, style: { ...baseIconStyle, ...(icon as IconEl).props?.style } })
+    : <IconPrinter size={iconSize} style={baseIconStyle} />;
 
   const commonBtn: CSSProperties = {
     border:          'none',

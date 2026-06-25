@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import type { CSSProperties } from 'react';
-import LocalOfferIcon    from '@mui/icons-material/LocalOffer';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import SearchIcon        from '@mui/icons-material/Search';
+import LocalOfferIcon        from '@mui/icons-material/LocalOffer';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon   from '@mui/icons-material/KeyboardArrowUp';
+import SearchIcon            from '@mui/icons-material/Search';
 import { Checkbox }      from '../ds/atoms/Checkbox';
 import { DividerH }      from '../ds/atoms/Divider';
 import { HintMain }      from '../ds/atoms/Hint/Hint';
@@ -166,20 +167,21 @@ export function CategoriasDropdown({
         onMouseLeave={() => setShowHint(false)}
         onClick={() => setOpen(v => !v)}
         style={label ? {
-          /* ── Modo toolbar tbtn (com label) ── */
+          /* ── Modo toolbar (moderno) ── */
           display:         'flex',
           alignItems:      'center',
-          gap:             5,
-          height:          30,
+          gap:             6,
+          height:          32,
           boxSizing:       'border-box',
-          padding:         '5px 9px',
-          border:          `0.5px solid ${open || showHint ? 'rgba(0,0,0,0.18)' : 'transparent'}`,
-          borderRadius:    borders.radius.lg,
-          backgroundColor: open || showHint ? colors.surface.xl : 'transparent',
+          padding:         '0 10px',
+          border:          `1px solid ${open ? '#0058db' : showHint ? '#9CA3AF' : '#D1D5DB'}`,
+          borderRadius:    8,
+          backgroundColor: '#fff',
           cursor:          'pointer',
           flexShrink:      0,
-          transition:      'background 0.1s, border-color 0.1s, color 0.1s',
+          transition:      'border-color 0.15s',
           userSelect:      'none',
+          minWidth:        110,
         } : {
           /* ── Modo ícone (sem label — legado para painéis de detalhe) ── */
           display:         'flex',
@@ -197,16 +199,18 @@ export function CategoriasDropdown({
       >
         {label ? (
           <>
-            <LocalOfferIcon style={{ fontSize: 15, color: open || showHint ? colors.secondary.dark : colors.surface.main, flexShrink: 0 }} />
-            <span style={{ ...typography.styles.caption, color: open || showHint ? colors.secondary.dark : colors.secondary.main, whiteSpace: 'nowrap', lineHeight: '20px' }}>
+            <LocalOfferIcon style={{ fontSize: 15, color: open ? '#0058db' : '#6B7280', flexShrink: 0 }} />
+            <span style={{ ...typography.styles.caption, color: open ? '#0058db' : '#374151', whiteSpace: 'nowrap', lineHeight: '20px', fontWeight: open ? 600 : 400 }}>
               {label}
             </span>
-            <ArrowDropDownIcon style={{ fontSize: 14, color: colors.surface.main, flexShrink: 0, marginLeft: 1 }} />
+            {open
+              ? <KeyboardArrowUpIcon   style={{ fontSize: 16, color: open ? '#0058db' : '#9CA3AF', flexShrink: 0 }} />
+              : <KeyboardArrowDownIcon style={{ fontSize: 16, color: '#9CA3AF', flexShrink: 0 }} />}
           </>
         ) : (
           <>
             <LocalOfferIcon style={{ fontSize: CATEGORY_TRIGGER_SIZE, color: colors.primary.main }} />
-            <ArrowDropDownIcon style={{ fontSize: CATEGORY_TRIGGER_SIZE, color: colors.primary.main }} />
+            <KeyboardArrowDownIcon style={{ fontSize: CATEGORY_TRIGGER_SIZE, color: colors.primary.main }} />
           </>
         )}
       </button>
@@ -220,30 +224,33 @@ export function CategoriasDropdown({
       {open && (
         <div style={{
           position:        'absolute',
-          top:             '100%',
+          top:             'calc(100% + 4px)',
           right:           0,
-          backgroundColor: colors.surface.xxxl,
-          boxShadow:       shadows.level1,
+          backgroundColor: '#fff',
+          boxShadow:       shadows.level2 ?? '0 4px 16px rgba(0,0,0,0.12)',
+          borderRadius:    10,
+          border:          '1px solid #E5E7EB',
           zIndex:          500,
           width:           'max-content',
           minWidth:        CATEGORY_DROPDOWN_MIN_WIDTH,
           maxWidth:        `min(${CATEGORY_DROPDOWN_MAX_WIDTH}px, calc(100vw - 32px))`,
           boxSizing:       'border-box',
+          overflow:        'hidden',
         }}>
           {/* Busca */}
-          <div style={{ padding: spacing.xxs }}>
+          <div style={{ padding: '8px 8px 4px' }}>
             <div style={{
               display:         'flex',
               alignItems:      'center',
-              justifyContent:  'space-between',
-              gap:             spacing.xs,
-              border:          `1px solid ${colors.primary.main}`,
-              borderRadius:    borders.radius.md,
-              padding:         `${spacing.xs} ${spacing['bt-3']} ${spacing.xxs}`,
-              backgroundColor: colors.surface.xxxl,
-              minHeight:       36,
+              gap:             6,
+              border:          '1px solid #D1D5DB',
+              borderRadius:    6,
+              padding:         '0 8px',
+              backgroundColor: '#fff',
+              height:          32,
               boxSizing:       'border-box',
             }}>
+              <SearchIcon style={{ fontSize: 16, color: '#9CA3AF', flexShrink: 0 }} />
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
@@ -253,12 +260,11 @@ export function CategoriasDropdown({
                   border:     'none',
                   outline:    'none',
                   background: 'transparent',
-                  color:      colors.surface.main,
+                  color:      '#374151',
                   width:      '100%',
                   padding:    0,
                 }}
               />
-              <SearchIcon style={{ fontSize: CATEGORY_TRIGGER_SIZE, color: colors.surface.main, flexShrink: 0 }} />
             </div>
           </div>
 

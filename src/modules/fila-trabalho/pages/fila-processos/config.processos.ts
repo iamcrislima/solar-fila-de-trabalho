@@ -43,10 +43,10 @@ export const cardConfig = {
   // ── Controles da barra de ações ──────────────────────────────────────────
 
   controles: {
-    visualizacaoValor:  'Visualização padrão',
+    visualizacaoValor:  'Inbox',
     visualizacaoOpcoes: [
-      { label: 'Visualização padrão'      },
-      { label: 'Fora da fila de trabalho' },
+      { label: 'Inbox'            },
+      { label: 'Prazos agendados' },
     ],
 
     buscaPlaceholder:   'Palavra-chave',

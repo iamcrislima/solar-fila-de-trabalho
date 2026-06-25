@@ -63,12 +63,14 @@ import { SYSTEM_TAGS, systemChip, hasSystemChip } from '@/domain/categorias/syst
 
 // MUI Icons — Card
 
-// MUI Icons — Controls
-import CallReceivedIcon from '@mui/icons-material/CallReceived';
-import CancelIcon from '@mui/icons-material/Cancel';
-import SendIcon from '@mui/icons-material/Send';
-import ArchiveIcon from '@mui/icons-material/Archive';
-import HistoryIcon from '@mui/icons-material/History';
+// Tabler Icons — Controls
+import {
+  IconCircleCheck,
+  IconCircleX,
+  IconArrowRight,
+  IconTrash,
+  IconCalendar,
+} from '@tabler/icons-react';
 
 // ─── Utilitários de filtragem ─────────────────────────────────────────────────
 
@@ -1128,7 +1130,7 @@ export function FilaDeProcessos({
       {/* Receber — tbtn-blue: ícone + label */}
       {showReceber && (
         <ButtonHint
-          icon={<CallReceivedIcon />}
+          icon={<IconCircleCheck />}
           label={cardConfig.controles.acoes.receber}
           variant="blue"
           hint={cardConfig.controles.acoes.receber}
@@ -1139,7 +1141,7 @@ export function FilaDeProcessos({
       {/* Recusar — tbtn-red: ícone + label */}
       {showRecusar && (
         <ButtonHint
-          icon={<CancelIcon />}
+          icon={<IconCircleX />}
           label={cardConfig.controles.acoes.cancelar}
           variant="red"
           hint={unreceivedOnlyActionHint(cardConfig.controles.acoes.cancelar)}
@@ -1149,21 +1151,21 @@ export function FilaDeProcessos({
       {/* Encaminhar / Arquivar / Prazo — ícone só (sem label) */}
       {showEncaminhar && (
         <ButtonHint
-          icon={<SendIcon />}
+          icon={<IconArrowRight />}
           hint={receivedOnlyActionHint(cardConfig.controles.acoes.encaminhar)}
           disabled={!receivedOnlyEligibility.canRun}
         />
       )}
       {showArquivar && (
         <ButtonHint
-          icon={<ArchiveIcon />}
+          icon={<IconTrash />}
           hint={receivedOnlyActionHint(cardConfig.controles.acoes.arquivar)}
           disabled={!receivedOnlyEligibility.canRun}
         />
       )}
       {(showPrazo || isForaFila) && (
         <ButtonHint
-          icon={<HistoryIcon />}
+          icon={<IconCalendar />}
           hint={
             isForaFila
               ? cardConfig.controles.acoes.reagendarPrazo

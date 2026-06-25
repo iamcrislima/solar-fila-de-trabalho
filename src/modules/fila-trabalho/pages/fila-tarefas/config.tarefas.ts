@@ -41,10 +41,10 @@ export const tarefasConfig = {
   // ── Controles da barra de ações ──────────────────────────────────────────
 
   controles: {
-    visualizacaoValor:  'Visualização padrão',
+    visualizacaoValor:  'Inbox',
     visualizacaoOpcoes: [
-      { label: 'Visualização padrão' },
-      { label: 'Tarefas agendadas'   },
+      { label: 'Inbox'            },
+      { label: 'Prazos agendados' },
     ],
 
     chipResultadosCor: 'success',

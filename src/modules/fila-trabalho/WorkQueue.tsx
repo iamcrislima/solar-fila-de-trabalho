@@ -1,4 +1,4 @@
-﻿import { useState } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import type { ChangeEventHandler, ReactNode } from 'react';
 import type { WorkQueueCard } from './types';
 
@@ -6,7 +6,6 @@ import { useViewportWidth } from '../../shared/hooks/useViewportWidth';
 
 import { CustomTabs } from '../../components/custom/CustomTabs';
 import { Chip } from '../../components/ds/atoms/Chip';
-import { SimplePagination } from '../../components/custom/SimplePagination';
 import { Overlay } from '../../components/ds/atoms/Overlay';
 import { PortalContent } from '../../shell/PortalContent';
 
@@ -15,20 +14,28 @@ import { SelectAll } from '../../components/custom/SelectAll';
 import { OrdenacaoDropdown } from '../../components/custom/OrdenacaoDropdown';
 import { VisualizacaoDropdown } from '../../components/custom/VisualizacaoDropdown';
 import { KeywordSearch } from '../../components/custom/KeywordSearch';
-import { ExpandRetractButton } from '../../components/custom/ExpandRetractButton';
 import { spacing } from '../../styles/tokens/spacing';
 import { layout } from '../../styles/tokens/layout';
 import { colors } from '../../styles/tokens/colors';
 import { typography } from '../../styles/tokens/typography';
 import { borders } from '../../styles/tokens/borders';
 
-import RefreshIcon      from '@mui/icons-material/Refresh';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import BackupTableIcon  from '@mui/icons-material/BackupTable';
-import SettingsIcon     from '@mui/icons-material/Settings';
-import CloseIcon        from '@mui/icons-material/Close';
-import InboxIcon        from '@mui/icons-material/Inbox';
-import TuneIcon         from '@mui/icons-material/Tune';
+import {
+  IconRefresh,
+  IconFileTypePdf,
+  IconTable,
+  IconSettings,
+  IconX,
+  IconInbox,
+  IconAdjustments,
+  IconChevronsLeft,
+  IconChevronsRight,
+  IconChevronLeft,
+  IconChevronRight,
+  IconChevronDown,
+  IconChevronUp,
+  IconCheck,
+} from '@tabler/icons-react';
 
 const innerPadding = `${layout.containerPaddingY} ${layout.containerPaddingX}`;
 
@@ -93,10 +100,10 @@ interface WorkQueueProps {
   actionSlotLocked?: boolean;
 }
 
-/** Botão "Filtros" no estilo tbtn com badge opcional quando há filtros ativos */
+/** Botão "Filtros" — mesmo estilo visual dos dropdowns da barra de filtros */
 function FiltrosToolbarBtn({ hasApplied, count, onClick }: { hasApplied?: boolean; count?: number; onClick?: () => void }) {
   const [hovered, setHovered] = useState(false);
-  const lit = hovered || !!hasApplied;
+  const active = !!hasApplied;
   return (
     <button
       type="button"
@@ -106,32 +113,32 @@ function FiltrosToolbarBtn({ hasApplied, count, onClick }: { hasApplied?: boolea
       style={{
         display:         'flex',
         alignItems:      'center',
-        gap:             5,
-        padding:         '5px 9px',
-        height:          30,
+        gap:             6,
+        padding:         '0 10px',
+        height:          32,
         boxSizing:       'border-box',
-        border:          `0.5px solid ${lit ? 'rgba(0,0,0,0.18)' : 'transparent'}`,
-        borderRadius:    borders.radius.lg,
-        backgroundColor: lit ? colors.surface.xl : 'transparent',
+        border:          `1px solid ${active ? '#0058db' : hovered ? '#9CA3AF' : '#D1D5DB'}`,
+        borderRadius:    8,
+        backgroundColor: '#fff',
         cursor:          'pointer',
         flexShrink:      0,
-        transition:      'background 0.1s, border-color 0.1s',
+        transition:      'border-color 0.15s',
         userSelect:      'none',
         fontFamily:      'inherit',
       }}
     >
-      <TuneIcon style={{ fontSize: 15, color: lit ? colors.secondary.dark : colors.surface.main, flexShrink: 0 }} />
-      <span style={{ ...typography.styles.caption, color: lit ? colors.secondary.dark : colors.secondary.main, whiteSpace: 'nowrap', lineHeight: '20px' }}>
+      <IconAdjustments size={15} stroke={1.5} color={active ? '#0058db' : '#6B7280'} style={{ flexShrink: 0 }} />
+      <span style={{ ...typography.styles.caption, color: active ? '#0058db' : '#374151', whiteSpace: 'nowrap', lineHeight: '20px', fontWeight: active ? 600 : 400 }}>
         Filtros
       </span>
-      {hasApplied && count != null && count > 0 && (
+      {active && count != null && count > 0 && (
         <span style={{
           minWidth:        17,
           height:          17,
           fontSize:        11,
           fontWeight:      600,
-          backgroundColor: colors.primary.xxl,
-          color:           colors.primary.main,
+          backgroundColor: '#edf2ff',
+          color:           '#0058db',
           borderRadius:    100,
           display:         'inline-flex',
           alignItems:      'center',
@@ -147,6 +154,119 @@ function FiltrosToolbarBtn({ hasApplied, count, onClick }: { hasApplied?: boolea
   );
 }
 
+
+function PageSizeSelect({ value, options, onChange }: {
+  value: number;
+  options: number[];
+  onChange: (n: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [hov, setHov]   = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  return (
+    <div ref={ref} style={{ position: 'relative', display: 'inline-flex', flexShrink: 0 }}>
+      <button
+        type="button"
+        onClick={() => setOpen(v => !v)}
+        onMouseEnter={() => setHov(true)}
+        onMouseLeave={() => setHov(false)}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          height: 32, boxSizing: 'border-box', padding: '0 10px',
+          border: `1px solid ${open ? '#0058db' : hov ? '#9CA3AF' : '#D1D5DB'}`,
+          borderRadius: 8, backgroundColor: '#fff', cursor: 'pointer',
+          fontFamily: 'inherit', transition: 'border-color 0.15s', userSelect: 'none',
+          flexShrink: 0,
+        }}
+      >
+        <span style={{ ...typography.styles.caption, color: open ? '#0058db' : '#374151', whiteSpace: 'nowrap', lineHeight: '20px', fontWeight: open ? 600 : 400 }}>
+          Resultados: {value}
+        </span>
+        {open
+          ? <IconChevronUp   size={16} stroke={2} color={open ? '#0058db' : '#9CA3AF'} style={{ flexShrink: 0 }} />
+          : <IconChevronDown size={16} stroke={2} color="#9CA3AF"                       style={{ flexShrink: 0 }} />}
+      </button>
+
+      {open && (
+        <div style={{
+          position: 'absolute', top: 'calc(100% + 4px)', right: 0,
+          backgroundColor: '#fff', border: '1px solid #E5E7EB',
+          borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+          zIndex: 500, overflow: 'hidden', minWidth: 120,
+        }}>
+          {options.map(opt => (
+            <PageSizeOption key={opt} label={opt} selected={opt === value} onClick={() => { onChange(opt); setOpen(false); }} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function PageSizeOption({ label, selected, onClick }: { label: number; selected: boolean; onClick: () => void }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 12px', width: '100%', boxSizing: 'border-box',
+        backgroundColor: selected ? '#edf2ff' : hov ? '#F9FAFB' : '#fff',
+        border: 'none', cursor: 'pointer', textAlign: 'left', transition: 'background 0.1s',
+        fontFamily: 'inherit',
+      }}
+    >
+      <div style={{ width: 16, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        {selected && <IconCheck size={13} stroke={2.5} color="#0058db" />}
+      </div>
+      <span style={{ ...typography.styles.caption, fontWeight: selected ? 600 : 400, color: selected ? '#0058db' : '#374151' }}>
+        {label} por página
+      </span>
+    </button>
+  );
+}
+
+function NavPageBtn({
+  icon, disabled, onClick,
+}: { icon: React.ReactNode; disabled: boolean; onClick: () => void }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        width: 26, height: 26, padding: 0,
+        border: `1px solid ${disabled ? '#E5E7EB' : hov ? '#93C5FD' : '#D1D5DB'}`,
+        borderRadius: 4,
+        background: disabled ? '#F9FAFB' : hov ? '#EFF6FF' : '#fff',
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: disabled ? '#9CA3AF' : '#374151',
+        flexShrink: 0, transition: 'background 0.12s, border-color 0.12s',
+      }}
+    >
+      {icon}
+    </button>
+  );
+}
+
+
 export function WorkQueue({
   texts,
   activeTab,
@@ -154,8 +274,6 @@ export function WorkQueue({
   tabLabels,
   allChecked,
   onToggleAllChecked,
-  allExpanded,
-  onToggleAllExpanded,
   ordenacaoSections,
   visualizacao,
   visualizacaoOptions,
@@ -174,9 +292,9 @@ export function WorkQueue({
   categoriasSlot,
   page,
   pageSize,
-  pageSizeOptions: _pageSizeOptions,
+  pageSizeOptions,
   onPageChange,
-  onPageSizeChange: _onPageSizeChange,
+  onPageSizeChange,
   displayedItems = [],
   emptyMessage,
   renderItem,
@@ -192,6 +310,12 @@ export function WorkQueue({
   const viewportWidth = useViewportWidth();
   const isNarrow = viewportWidth <= 1180;
   const isReduced = viewportWidth <= 980;
+
+  const curPage    = page ?? 1;
+  const curSize    = pageSize ?? 10;
+  const totalPages = filteredCount != null ? Math.max(1, Math.ceil(filteredCount / curSize)) : 1;
+  const rangeStart = filteredCount ? (curPage - 1) * curSize + 1 : 0;
+  const rangeEnd   = filteredCount != null ? Math.min(curPage * curSize, filteredCount) : 0;
   const contentPadding = isNarrow ? `${spacing['bt-3']} ${spacing.sm}` : innerPadding;
   const listFramePadding = isNarrow ? `0 0 ${spacing.xs}` : `0 0 ${layout.listShadowGuard}`;
   const sidePanelStacked = sidePanelOpen && isReduced;
@@ -202,59 +326,6 @@ export function WorkQueue({
       style={{ padding: 0 }}
       frameStyle={{ gap: 0, padding: 0, borderRadius: 0, boxShadow: 'none' }}
     >
-      {/* ── Toolbar: grupos de ação + paginação com navegação ── */}
-      <div style={{
-        display:         'flex',
-        alignItems:      'center',
-        justifyContent:  'space-between',
-        padding:         `0 ${layout.containerPaddingX}`,
-        height:          44,
-        borderBottom:    `1px solid ${colors.surface.light}`,
-        flexShrink:      0,
-        boxSizing:       'border-box',
-        backgroundColor: colors.surface.xxxl,
-      }}>
-
-        {/* ── ESQUERDA: G1 ações contextuais + G2 organização ── */}
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0 }}>
-
-          {/* G1 — Ações contextuais (destaque azul, bloqueado sem seleção) */}
-          {actionSlot != null && (
-            <div style={{
-              display:         'flex',
-              alignItems:      'center',
-              gap:             2,
-              backgroundColor: actionSlotLocked ? colors.surface.xl : colors.primary.xxl,
-              borderRadius:    borders.radius.lg,
-              padding:         '0 5px',
-              margin:          '6px 0',
-              opacity:         actionSlotLocked ? 0.45 : 1,
-              pointerEvents:   actionSlotLocked ? 'none' : 'auto',
-              transition:      'opacity 0.2s',
-              flexShrink:      0,
-            }}>
-              {actionSlot}
-            </div>
-          )}
-
-          {/* Divisor */}
-          <div style={{ width: 1, height: 20, backgroundColor: colors.surface.light, flexShrink: 0, margin: '0 6px' }} />
-
-          {/* G2 — Organização da fila */}
-          <SelectAll selected={allChecked} onChange={onToggleAllChecked} iconSize={15} />
-          <ExpandRetractButton expanded={!allExpanded} label="Expandir/Retrair" onClick={onToggleAllExpanded} iconSize={15} />
-          <ButtonHint icon={<RefreshIcon style={{ fontSize: 15 }} />} hint={texts.botaoAtualizar} onClick={onRefresh} />
-        </div>
-
-        {/* ── DIREITA: G3 ferramentas + paginação ── */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 0, flexShrink: 0 }}>
-
-          {/* G3 — Ferramentas */}
-          <ButtonHint icon={<PictureAsPdfIcon />} hint={texts.tooltips.exportarPdf} />
-          <ButtonHint icon={<BackupTableIcon />}  hint={texts.tooltips.exportarPlanilha} />
-          <ButtonHint icon={<SettingsIcon />}     hint={texts.tooltips.configuracoes} onClick={onOpenPersonalizacao} />
-        </div>
-      </div>
 
       {/* ── Área de conteúdo (scroll local) ── */}
       <div style={{
@@ -309,6 +380,17 @@ export function WorkQueue({
             }}
           />
 
+          {/* Visualização — ao lado da busca */}
+          <VisualizacaoDropdown
+            value={visualizacao}
+            options={visualizacaoOptions}
+            myViews={customViews}
+            onCreateCustom={onCreateCustomView}
+            onEditView={onEditCustomView}
+            onChange={onVisualizacaoChange}
+            variant="toolbar"
+          />
+
           {/* Separador */}
           <div style={{ width: 1, height: 20, backgroundColor: colors.surface.light, flexShrink: 0 }} />
 
@@ -331,23 +413,84 @@ export function WorkQueue({
           {/* Ordenar */}
           <OrdenacaoDropdown sections={ordenacaoSections} hint="Ordenar" variant="toolbar" />
 
-          {/* Visualização */}
-          <VisualizacaoDropdown
-            value={visualizacao}
-            options={visualizacaoOptions}
-            myViews={customViews}
-            onCreateCustom={onCreateCustomView}
-            onEditView={onEditCustomView}
-            onChange={onVisualizacaoChange}
-            variant="toolbar"
-          />
-
           {/* Filtros */}
           <FiltrosToolbarBtn
             hasApplied={hasAppliedFilters}
             count={filteredCount}
             onClick={onOpenFilters}
           />
+        </div>
+
+        {/* ── Barra unificada: ações + paginação ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 2, flexShrink: 0 }}>
+
+          {/* SelectAll — sempre primeiro */}
+          <SelectAll selected={allChecked} onChange={onToggleAllChecked} iconSize={15} />
+
+          {/* G1 — Ações contextuais */}
+          {actionSlot != null && (
+            <div style={{
+              display:         'flex',
+              alignItems:      'center',
+              gap:             2,
+              backgroundColor: actionSlotLocked ? colors.surface.xl : colors.primary.xxl,
+              borderRadius:    borders.radius.lg,
+              padding:         '0 5px',
+              marginRight:     4,
+              opacity:         actionSlotLocked ? 0.45 : 1,
+              pointerEvents:   actionSlotLocked ? 'none' : 'auto',
+              transition:      'opacity 0.2s',
+              flexShrink:      0,
+            }}>
+              {actionSlot}
+            </div>
+          )}
+          {actionSlot != null && (
+            <div style={{ width: 1, height: 20, backgroundColor: colors.surface.light, flexShrink: 0, margin: '0 4px' }} />
+          )}
+
+          {/* G2 — Organização da fila */}
+          <ButtonHint icon={<IconRefresh size={15} stroke={1.5} />} hint={texts.botaoAtualizar} onClick={onRefresh} />
+
+          {/* Divisor */}
+          <div style={{ width: 1, height: 20, backgroundColor: colors.surface.light, flexShrink: 0, margin: '0 4px' }} />
+
+          {/* G3 — Ferramentas */}
+          <ButtonHint icon={<IconFileTypePdf size={15} stroke={1.5} />} hint={texts.tooltips.exportarPdf} />
+          <ButtonHint icon={<IconTable       size={15} stroke={1.5} />} hint={texts.tooltips.exportarPlanilha} />
+          <ButtonHint icon={<IconSettings    size={15} stroke={1.5} />} hint={texts.tooltips.configuracoes} onClick={onOpenPersonalizacao} />
+
+          {/* Espaçador */}
+          <div style={{ flex: 1 }} />
+
+          {/* Paginação inline */}
+          {filteredCount != null && onPageChange && (
+            <>
+              {onPageSizeChange && (
+                <PageSizeSelect
+                  value={curSize}
+                  options={pageSizeOptions ?? [10, 20, 50, 100]}
+                  onChange={n => { onPageSizeChange(n); onPageChange(1); }}
+                />
+              )}
+              <span style={{ fontSize: 12, color: colors.surface.medium, whiteSpace: 'nowrap', margin: '0 8px' }}>
+                {filteredCount} registros · {rangeStart}–{rangeEnd}
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                <NavPageBtn icon={<IconChevronsLeft  size={14} stroke={1.5} />} disabled={curPage <= 1}          onClick={() => onPageChange(1)} />
+                <NavPageBtn icon={<IconChevronLeft   size={14} stroke={1.5} />} disabled={curPage <= 1}          onClick={() => onPageChange(curPage - 1)} />
+                <span style={{
+                  minWidth: 26, height: 26, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontSize: 12, fontWeight: 600, color: colors.primary.main,
+                  border: `1px solid ${colors.primary.light}`,
+                  borderRadius: 4, background: colors.primary.xxl,
+                  padding: '0 6px', boxSizing: 'border-box',
+                }}>{curPage}</span>
+                <NavPageBtn icon={<IconChevronRight  size={14} stroke={1.5} />} disabled={curPage >= totalPages} onClick={() => onPageChange(curPage + 1)} />
+                <NavPageBtn icon={<IconChevronsRight size={14} stroke={1.5} />} disabled={curPage >= totalPages} onClick={() => onPageChange(totalPages)} />
+              </div>
+            </>
+          )}
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: layoutSpacing.blockGap }}>
@@ -373,7 +516,7 @@ export function WorkQueue({
             }}>
               {displayedItems.length === 0 && emptyMessage ? (
                 <div style={{ padding: '48px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, textAlign: 'center' }}>
-                  <InboxIcon style={{ fontSize: 64, color: colors.secondary.light }} />
+                  <IconInbox size={64} color={colors.secondary.light} />
                   <span style={{ ...typography.styles.body2, color: colors.secondary.main }}>{emptyMessage}</span>
                   {hasAppliedFilters && onClearAppliedFilters && (
                     <button
@@ -381,7 +524,7 @@ export function WorkQueue({
                       onClick={onClearAppliedFilters}
                       style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', marginTop: 4 }}
                     >
-                      <Chip color={resultChipColor} size="sm" trailingIcon={<CloseIcon />} style={{ cursor: 'pointer' }}>
+                      <Chip color={resultChipColor} size="sm" trailingIcon={<IconX size={14} stroke={1.5} />} style={{ cursor: 'pointer' }}>
                         Limpar filtros
                       </Chip>
                     </button>
@@ -397,14 +540,6 @@ export function WorkQueue({
             </div>
             {sidePanelOpen && sidePanel}
           </div>
-          {onPageChange && (
-            <SimplePagination
-              page={page ?? 1}
-              totalPages={Math.ceil((filteredCount ?? 0) / (pageSize ?? 10))}
-              onPageChange={onPageChange}
-              style={{ marginTop: 4 }}
-            />
-          )}
         </div>
 
         <div
