@@ -369,8 +369,8 @@ export function WorkQueue({
             value={keyword}
             onChange={onKeywordChange}
             style={{
-              flex:            '1 1 200px',
-              minWidth:        isReduced ? '100%' : 160,
+              flex:            '1 1 120px',
+              minWidth:        isReduced ? '100%' : 100,
               backgroundColor: colors.surface.xxxl,
               border:          '0.5px solid rgba(0,0,0,0.10)',
               borderRadius:    borders.radius.lg,

@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon   from '@mui/icons-material/KeyboardArrowUp';
-import AddCircleOutlineIcon  from '@mui/icons-material/AddCircleOutlined';
 import EditOutlinedIcon      from '@mui/icons-material/EditOutlined';
 import ViewListIcon          from '@mui/icons-material/ViewList';
-import CheckIcon             from '@mui/icons-material/Check';
 import { TruncatedText }     from '../ds/atoms/TruncatedText';
 import { colors }     from '../../styles/tokens/colors';
 import { typography } from '../../styles/tokens/typography';
@@ -60,15 +58,15 @@ export function VisualizacaoDropdown({
     gap:             6,
     padding:         '0 10px',
     height:          32,
+    width:           180,
     boxSizing:       'border-box',
     border:          `1px solid ${open ? '#0058db' : hovered ? '#9CA3AF' : '#D1D5DB'}`,
     borderRadius:    8,
     backgroundColor: '#fff',
     cursor:          'pointer',
-    whiteSpace:      'nowrap',
     transition:      'border-color 0.15s',
     userSelect:      'none',
-    minWidth:        100,
+    overflow:        'hidden',
   };
 
   const defaultTrigger: React.CSSProperties = {
@@ -102,11 +100,11 @@ export function VisualizacaoDropdown({
         {variant === 'toolbar' ? (
           <>
             <ViewListIcon style={{ fontSize: 15, color: open ? '#0058db' : '#6B7280', flexShrink: 0 }} />
-            <span style={{ ...typography.styles.caption, color: open ? '#0058db' : '#374151', whiteSpace: 'nowrap', lineHeight: '20px', fontWeight: open ? 600 : 400 }}>
+            <span style={{ ...typography.styles.caption, color: open ? '#0058db' : '#374151', lineHeight: '20px', fontWeight: open ? 600 : 400, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {value}
             </span>
             {open
-              ? <KeyboardArrowUpIcon   style={{ fontSize: 16, color: open ? '#0058db' : '#9CA3AF', flexShrink: 0 }} />
+              ? <KeyboardArrowUpIcon   style={{ fontSize: 16, color: '#0058db', flexShrink: 0 }} />
               : <KeyboardArrowDownIcon style={{ fontSize: 16, color: '#9CA3AF', flexShrink: 0 }} />}
           </>
         ) : (
@@ -136,7 +134,7 @@ export function VisualizacaoDropdown({
           position:        'absolute',
           top:             'calc(100% + 4px)',
           left:            0,
-          minWidth:        '100%',
+          minWidth:        180,
           backgroundColor: '#fff',
           boxShadow:       shadows.level2 ?? '0 4px 16px rgba(0,0,0,0.12)',
           borderRadius:    10,
@@ -146,7 +144,7 @@ export function VisualizacaoDropdown({
           flexDirection:   'column',
           maxWidth:        'calc(100vw - 16px)',
           overflow:        'hidden',
-          padding:         '6px 0',
+          paddingTop:      6,
         }}>
           {/* Static options */}
           {options.map((item) => (
@@ -157,29 +155,6 @@ export function VisualizacaoDropdown({
               onClick={() => select(item)}
             />
           ))}
-
-          {/* Create custom view */}
-          <button
-            type="button"
-            onClick={onCreateCustom}
-            style={{
-              display:         'flex',
-              alignItems:      'center',
-              gap:             8,
-              padding:         '6px 12px',
-              width:           '100%',
-              boxSizing:       'border-box',
-              background:      'none',
-              border:          'none',
-              cursor:          'pointer',
-              textAlign:       'left',
-            }}
-          >
-            <AddCircleOutlineIcon style={{ fontSize: 16, color: '#6B7280', flexShrink: 0 }} />
-            <span style={{ ...typography.styles.caption, color: '#374151' }}>
-              Criar visualização personalizada
-            </span>
-          </button>
 
           {/* Custom views */}
           {myViews.length > 0 && (
@@ -194,17 +169,40 @@ export function VisualizacaoDropdown({
                   label={item.label}
                   selected={isSelected(item)}
                   onClick={() => select(item)}
+                  onEdit={() => { onEditView?.(item.id ?? item.label ?? ''); setOpen(false); }}
                 />
               ))}
             </>
           )}
+
+          {/* Personalizar — sempre fixado no rodapé */}
+          <div style={{ height: 1, backgroundColor: '#F3F4F6', margin: '4px 0 0' }} />
+          <button
+            type="button"
+            onClick={onCreateCustom}
+            style={{
+              display:         'flex',
+              alignItems:      'center',
+              padding:         '8px 12px',
+              width:           '100%',
+              boxSizing:       'border-box',
+              background:      'none',
+              border:          'none',
+              cursor:          'pointer',
+              textAlign:       'left',
+            }}
+          >
+            <span style={{ ...typography.styles.caption, color: '#374151' }}>
+              Personalizar
+            </span>
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-function VisualizacaoItem({ label, selected, onClick }: { label: string; selected: boolean; onClick: () => void }) {
+function VisualizacaoItem({ label, selected, onClick, onEdit }: { label: string; selected: boolean; onClick: () => void; onEdit?: () => void }) {
   const [hov, setHov] = useState(false);
   return (
     <button
@@ -216,7 +214,7 @@ function VisualizacaoItem({ label, selected, onClick }: { label: string; selecte
         display:         'flex',
         alignItems:      'center',
         gap:             8,
-        padding:         '6px 12px',
+        padding:         onEdit ? '8px 12px' : '6px 12px',
         width:           '100%',
         boxSizing:       'border-box',
         backgroundColor: selected ? '#edf2ff' : hov ? '#F9FAFB' : '#fff',
@@ -226,12 +224,31 @@ function VisualizacaoItem({ label, selected, onClick }: { label: string; selecte
         transition:      'background 0.1s',
       }}
     >
-      <div style={{ width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        {selected && <CheckIcon style={{ fontSize: 14, color: '#0058db' }} />}
-      </div>
-      <span style={{ ...typography.styles.caption, color: selected ? '#0058db' : '#374151', whiteSpace: 'nowrap', fontWeight: selected ? 600 : 400 }}>
+      <span style={{ ...typography.styles.caption, color: selected ? '#0058db' : '#374151', whiteSpace: 'nowrap', fontWeight: selected ? 600 : 400, flex: 1 }}>
         {label}
       </span>
+      {onEdit && (
+        <button
+          type="button"
+          onClick={e => { e.stopPropagation(); onEdit(); }}
+          style={{
+            display:         'flex',
+            alignItems:      'center',
+            justifyContent:  'center',
+            background:      'none',
+            border:          'none',
+            cursor:          'pointer',
+            padding:         2,
+            borderRadius:    4,
+            flexShrink:      0,
+            color:           '#9CA3AF',
+          }}
+          onMouseEnter={e => (e.currentTarget.style.color = '#0058db')}
+          onMouseLeave={e => (e.currentTarget.style.color = '#9CA3AF')}
+        >
+          <EditOutlinedIcon style={{ fontSize: 15 }} />
+        </button>
+      )}
     </button>
   );
 }
