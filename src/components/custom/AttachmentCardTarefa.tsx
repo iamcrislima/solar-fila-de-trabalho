@@ -1,4 +1,5 @@
-import PushPinIcon      from '@mui/icons-material/PushPin';
+import BookmarkIcon       from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import OpenInNewIcon    from '@mui/icons-material/OpenInNew';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { Checkbox }     from '../ds/atoms/Checkbox';
@@ -96,7 +97,10 @@ export function AttachmentCardTarefa({
             onClick={e => { e.stopPropagation(); onPinClick?.(); }}
             aria-label="Fixar"
           >
-            <PushPinIcon style={{ fontSize: 24, color: pinned ? colors.error.main : colors.surface.main }} />
+            {pinned
+              ? <BookmarkIcon       style={{ fontSize: 24, color: colors.error.main }} />
+              : <BookmarkBorderIcon style={{ fontSize: 24, color: colors.surface.main }} />
+            }
           </IconButton>
         </Tooltip>
       </div>

@@ -80,7 +80,7 @@ export function Steps({ orientation = 'h', steps = [], current = 0, stepStates =
     return (
       <div style={{ display: 'flex', alignItems: 'flex-start', width: '100%', ...style }}>
         {steps.map((step, i) => (
-          <div key={i} style={{ flex: '1 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 0 }}>
+          <div key={step.label} style={{ flex: '1 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
               <HLine active={i <= current} invisible={i === 0} />
               <StepBubble state={getState(i)} number={i + 1} />
@@ -97,7 +97,7 @@ export function Steps({ orientation = 'h', steps = [], current = 0, stepStates =
     return (
       <div style={{ display: 'flex', flexDirection: 'column', ...style }}>
         {steps.map((step, i) => (
-          <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', minHeight: 114, maxHeight: 244 }}>
+          <div key={step.label} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', minHeight: 114, maxHeight: 244 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 34, alignSelf: 'stretch', flexShrink: 0 }}>
               <StepBubble state={getState(i)} number={i + 1} />
               <VLine active={i < current} invisible={i === steps.length - 1} />
@@ -116,7 +116,7 @@ export function Steps({ orientation = 'h', steps = [], current = 0, stepStates =
     return (
       <div style={{ display: 'flex', flexDirection: 'column', ...style }}>
         {steps.map((step, i) => (
-          <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', minHeight: 114, maxHeight: 244 }}>
+          <div key={step.label} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', minHeight: 114, maxHeight: 244 }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: 34, alignSelf: 'stretch', flexShrink: 0 }}>
               <StepBubble state={getState(i)} number={i + 1} />
               <VLine active={i < current} invisible={i === steps.length - 1} />

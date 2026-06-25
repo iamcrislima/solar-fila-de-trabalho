@@ -1,6 +1,8 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useState } from 'react';
 import type { ChangeEventHandler, ReactNode } from 'react';
 import type { WorkQueueCard } from './types';
+
+import { useViewportWidth } from '../../shared/hooks/useViewportWidth';
 
 import { CustomTabs } from '../../components/custom/CustomTabs';
 import { Chip } from '../../components/ds/atoms/Chip';
@@ -28,38 +30,12 @@ import CloseIcon        from '@mui/icons-material/Close';
 import InboxIcon        from '@mui/icons-material/Inbox';
 import TuneIcon         from '@mui/icons-material/Tune';
 
-const styles = {
-  primary:     colors.primary.main,
-  tabInactive: colors.surface.medium,
-  updateButton: colors.primary.main,
-  title:       colors.surface.dark,
-  chevron:     colors.surface.main,
-  subtitle:    colors.primary.main,
-  innerPadding: `${layout.containerPaddingY} ${layout.containerPaddingX}`,
-  gapHeaderTabs:    spacing.xs,
-  gapTabsControls:  spacing.xs,
-  gapControls:      spacing.xs,
-  gapHeaderActions: layout.actionGap,
-  gapActions:       layout.actionGap,
-};
+const innerPadding = `${layout.containerPaddingY} ${layout.containerPaddingX}`;
 
 const layoutSpacing = {
   blockGap: layout.blockGap,
   listGap: layout.listGap,
 };
-
-function useViewportWidth(): number {
-  const getWidth = () => (typeof window === 'undefined' ? 1440 : window.innerWidth);
-  const [width, setWidth] = useState(getWidth);
-
-  useEffect(() => {
-    const handleResize = () => setWidth(getWidth());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return width;
-}
 
 type ChipColor = 'primary' | 'warning' | 'success' | 'surface' | 'error' | 'support';
 
@@ -216,7 +192,7 @@ export function WorkQueue({
   const viewportWidth = useViewportWidth();
   const isNarrow = viewportWidth <= 1180;
   const isReduced = viewportWidth <= 980;
-  const contentPadding = isNarrow ? `${spacing['bt-3']} ${spacing.sm}` : styles.innerPadding;
+  const contentPadding = isNarrow ? `${spacing['bt-3']} ${spacing.sm}` : innerPadding;
   const listFramePadding = isNarrow ? `0 0 ${spacing.xs}` : `0 0 ${layout.listShadowGuard}`;
   const sidePanelStacked = sidePanelOpen && isReduced;
 

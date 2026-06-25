@@ -20,8 +20,8 @@ export function InputCheckboxCombo({ label, mandatory = false, type = 'primary',
     <div style={{ display: 'flex', flexDirection: 'column', gap: spacing['bt-3'], alignItems: 'flex-start', ...style }}>
       {labelText && <span style={{ ...typography.styles.body2, color: colors.surface.dark, whiteSpace: 'nowrap' }}>{labelText}</span>}
       <div style={{ display: 'flex', flexWrap: 'wrap', gap, alignItems: 'flex-start', width: '100%' }}>
-        {options.map(({ label: optLabel, checked, onChange, disabled }, i) => (
-          <Checkbox key={i} type={type} checked={checked} onChange={onChange} disabled={disabled}>{optLabel}</Checkbox>
+        {options.map(({ label: optLabel, checked, onChange, disabled }) => (
+          <Checkbox key={optLabel} type={type} checked={checked} onChange={onChange} disabled={disabled}>{optLabel}</Checkbox>
         ))}
       </div>
     </div>

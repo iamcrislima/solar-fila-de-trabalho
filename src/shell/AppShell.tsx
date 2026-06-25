@@ -55,7 +55,7 @@ export function AppShell({ sidebarContent, activeModuleId, onModuleChange, child
 
   // padding: '8px 12px 7px' → 8 + gap4 + icon24 + label13 + 7 = 56 px (ajustado ao header de 56 px)
   const headerIcons = headerConfig.textos.iconButtons.map((btn: { label: string }, i: number) => (
-    <HeaderIconButton key={i} icon={HEADER_ICONS[i]} label={btn.label} onClick={() => {}} style={{ padding: '8px 12px 7px' }} />
+    <HeaderIconButton key={btn.label} icon={HEADER_ICONS[i]} label={btn.label} onClick={() => {}} style={{ padding: '8px 12px 7px' }} />
   ));
 
   const compactSidebar    = viewportWidth <= 980;
@@ -82,25 +82,6 @@ export function AppShell({ sidebarContent, activeModuleId, onModuleChange, child
           zIndex:          100,
         }}
       />
-
-      {/* ── Barra de breadcrumb (largura total, acima da sidebar) ──────── */}
-      {/* paddingLeft 76 = 16 (header paddingLeft) + 40 (botão MenuOpen) + 20 (gap) → alinha com a logo Solar */}
-      {breadcrumbBar && (
-        <div style={{
-          display:         'flex',
-          alignItems:      'center',
-          height:          32,
-          paddingLeft:     76,
-          paddingRight:    spacing.sm,
-          backgroundColor: colors.surface.xxxl,
-          borderBottom:    `1px solid ${colors.surface.light}`,
-          flexShrink:      0,
-          position:        'relative',
-          zIndex:          99,
-        }}>
-          {breadcrumbBar}
-        </div>
-      )}
 
       {/* ── Área principal ──────────────────────────────────────────────── */}
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
@@ -181,6 +162,20 @@ export function AppShell({ sidebarContent, activeModuleId, onModuleChange, child
 
         {/* ── Área de conteúdo do módulo ──────────────────────────────── */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', overflowX: 'hidden', minHeight: 0 }}>
+          {breadcrumbBar && (
+            <div style={{
+              display:         'flex',
+              alignItems:      'center',
+              height:          32,
+              paddingLeft:     20,
+              paddingRight:    spacing.sm,
+              backgroundColor: colors.surface.xxxl,
+              borderBottom:    `1px solid ${colors.surface.light}`,
+              flexShrink:      0,
+            }}>
+              {breadcrumbBar}
+            </div>
+          )}
           {children}
         </div>
       </div>

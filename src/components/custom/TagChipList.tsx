@@ -239,8 +239,8 @@ function MoreTagsChip({
             boxSizing: 'border-box',
           }}
         >
-          {hiddenChips.map((chip, index) => (
-            <HiddenTagItem key={index} chip={chip} />
+          {hiddenChips.map((chip) => (
+            <HiddenTagItem key={getChipLabel(chip)} chip={chip} />
           ))}
         </div>,
         document.body
@@ -342,15 +342,15 @@ export function TagChipList({
           width: 'max-content',
         }}
       >
-        {normalizedChips.map((chip, index) => (
-          <TagChip key={`measure-${index}`} chip={chip} />
+        {normalizedChips.map((chip) => (
+          <TagChip key={`measure-${getChipLabel(chip)}`} chip={chip} />
         ))}
       </div>
 
       {shouldUseFullOverflow ? (
         <>
-          {visibleFullChips.map((chip, index) => (
-            <TagChip key={index} chip={chip} />
+          {visibleFullChips.map((chip) => (
+            <TagChip key={getChipLabel(chip)} chip={chip} />
           ))}
           {hiddenFullChips.length > 0 && (
             <MoreTagsChip hiddenChips={hiddenFullChips} disclosure={overflowDisclosure} />
@@ -358,16 +358,16 @@ export function TagChipList({
         </>
       ) : shouldCompact ? (
         <>
-          {visibleCompactChips.map((chip, index) => (
-            <TagChip key={index} chip={chip} variant="compact" />
+          {visibleCompactChips.map((chip) => (
+            <TagChip key={getChipLabel(chip)} chip={chip} variant="compact" />
           ))}
           {hiddenCompactChips.length > 0 && (
             <MoreTagsChip hiddenChips={hiddenCompactChips} disclosure={overflowDisclosure} />
           )}
         </>
       ) : (
-        normalizedChips.map((chip, index) => (
-          <TagChip key={index} chip={chip} />
+        normalizedChips.map((chip) => (
+          <TagChip key={getChipLabel(chip)} chip={chip} />
         ))
       )}
     </div>

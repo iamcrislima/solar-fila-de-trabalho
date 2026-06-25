@@ -10,8 +10,8 @@ interface InputIconBoxProps { items?: IconBoxItem[]; style?: CSSProperties; }
 export function InputIconBox({ items = [], style }: InputIconBoxProps) {
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start', gap: spacing['bt-3'], padding: spacing.xs, width: 400, backgroundColor: colors.surface.xxxl, border: `1px solid ${colors.surface.medium}`, borderRadius: borders.radius.md, boxSizing: 'border-box', ...style }}>
-      {items.map(({ icon, label, active, onClick }, i) => (
-        <IconInput key={i} icon={icon} label={label} active={active} onClick={onClick} />
+      {items.map(({ icon, label, active, onClick }) => (
+        <IconInput key={label ?? String(active)} icon={icon} label={label} active={active} onClick={onClick} />
       ))}
     </div>
   );

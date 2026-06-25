@@ -31,8 +31,8 @@ export function SideMenuIconBar({ items = [], theme = 'default', style }: SideMe
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 54, minHeight: '100%', backgroundColor: BG[theme] ?? colors.primary.main, overflow: 'hidden', ...style }}>
       <SideMenuIconFixed theme={theme} />
-      {items.map((item, i) => (
-        <SideMenuIconItem key={i} icon={item.icon} label={item.label} fav={item.fav} state={item.state ?? 'default'} theme={theme} onClick={item.onClick} />
+      {items.map((item) => (
+        <SideMenuIconItem key={item.label} icon={item.icon} label={item.label} fav={item.fav} state={item.state ?? 'default'} theme={theme} onClick={item.onClick} />
       ))}
     </div>
   );

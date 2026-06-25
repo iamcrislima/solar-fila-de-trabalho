@@ -13,8 +13,8 @@ import { getTarefasWorkQueueCards }   from './selectors/tarefaQueue.selectors';
 import { FilaDeProcessos } from './pages/fila-processos/FilaDeProcessos';
 import { FilaDeTarefas }   from './pages/fila-tarefas/FilaDeTarefas';
 
-const initialProcessos = getProcessosWorkQueueCards() as unknown as unknown as Parameters<typeof extractPersonalTagsFromItems>[0];
-const initialTarefas = getTarefasWorkQueueCards() as unknown as unknown as Parameters<typeof extractPersonalTagsFromItems>[0];
+const initialProcessos = getProcessosWorkQueueCards() as unknown as Parameters<typeof extractPersonalTagsFromItems>[0];
+const initialTarefas = getTarefasWorkQueueCards() as unknown as Parameters<typeof extractPersonalTagsFromItems>[0];
 const initialPersonalTags = [
   ...extractPersonalTagsFromItems(initialProcessos),
   ...extractPersonalTagsFromItems(initialTarefas),

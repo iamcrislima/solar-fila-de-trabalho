@@ -33,7 +33,7 @@ export function Breadcrumb({ items = [{ label: 'Page Title' }], showBack = false
           const isFirst  = i === 0;
           const isActive = i === items.length - 1 && items.length > 1;
           return (
-            <React.Fragment key={i}>
+            <React.Fragment key={item.label}>
               {i > 0 && <ChevronRightIcon style={{ fontSize: 24, color: colors.surface.main, flexShrink: 0 }} />}
               <span onClick={item.onClick} style={{ ...(isFirst ? typography.styles.title2 : typography.styles.subtitle2), color: isActive ? colors.primary.medium : colors.surface.dark, cursor: item.onClick ? 'pointer' : 'default', whiteSpace: 'nowrap' }}>
                 {item.label}

@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 
 import { borders } from '@/styles/tokens/borders';
@@ -6,6 +5,7 @@ import { colors } from '@/styles/tokens/colors';
 import { layout } from '@/styles/tokens/layout';
 import { shadows } from '@/styles/tokens/shadows';
 import { spacing } from '@/styles/tokens/spacing';
+import { useViewportWidth } from '@/shared/hooks/useViewportWidth';
 
 interface PortalContentProps {
   children: ReactNode;
@@ -13,19 +13,6 @@ interface PortalContentProps {
   style?: CSSProperties;
   /** Quando true, muda overflow para visible para permitir que botões absolutos (ex.: "Voltar") extrapolem a borda do frame sem serem cortados. */
   overlayOpen?: boolean;
-}
-
-function useViewportWidth(): number {
-  const getWidth = () => (typeof window === 'undefined' ? 1440 : window.innerWidth);
-  const [width, setWidth] = useState(getWidth);
-
-  useEffect(() => {
-    const handleResize = () => setWidth(getWidth());
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  return width;
 }
 
 export function PortalContent({ children, frameStyle, style, overlayOpen = false }: PortalContentProps) {

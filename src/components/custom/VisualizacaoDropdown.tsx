@@ -157,9 +157,9 @@ export function VisualizacaoDropdown({
           overflowX:       'auto',
         }}>
           {/* Static options */}
-          {options.map((item, i) => (
+          {options.map((item) => (
             <DropdownMenuItem
-              key={i}
+              key={item.id ?? item.label}
               label={item.label}
               active={isSelected(item)}
               onClick={() => select(item)}
@@ -183,9 +183,9 @@ export function VisualizacaoDropdown({
                   Minhas visualizações
                 </span>
               </div>
-              {myViews.map((item, i) => (
+              {myViews.map((item) => (
                 <DropdownMenuItem
-                  key={i}
+                  key={item.id ?? item.label}
                   label={item.label}
                   active={isSelected(item)}
                   onClick={() => select(item)}

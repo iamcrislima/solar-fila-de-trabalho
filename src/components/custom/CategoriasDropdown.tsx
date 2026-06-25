@@ -263,9 +263,9 @@ export function CategoriasDropdown({
           </div>
 
           {/* Itens — sempre no DOM; ocultos via maxHeight para não redimensionar a largura */}
-          {items.map((item, i) => (
+          {items.map((item) => (
             <div
-              key={i}
+              key={item.label}
               style={lc && !item.label.toLowerCase().includes(lc)
                 ? { maxHeight: 0, overflow: 'hidden', padding: 0 }
                 : { width: 'max-content', maxWidth: '100%' }

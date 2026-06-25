@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
-import PushPinIcon  from '@mui/icons-material/PushPin';
+import BookmarkIcon       from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import { Tooltip }  from '../ds/atoms/Tooltip/Tooltip';
 import { colors }    from '../../styles/tokens/colors';
 import { typography } from '../../styles/tokens/typography';
@@ -355,7 +356,10 @@ export function AttachmentCardProcesso({
                 transition:     'color 0.12s',
               }}
             >
-              <PushPinIcon style={{ fontSize: 14 }} />
+              {pinned
+                ? <BookmarkIcon       style={{ fontSize: 14 }} />
+                : <BookmarkBorderIcon style={{ fontSize: 14 }} />
+              }
             </button>
           </Tooltip>
         </div>
